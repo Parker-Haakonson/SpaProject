@@ -1,0 +1,46 @@
+﻿@page "/mains/details"
+@using Microsoft.EntityFrameworkCore
+@using SpaProject.Models
+@inject IDbContextFactory<SpaProject.Data.SpaProjectContextMainDB> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Main</h2>
+    <hr />
+    @if (main is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Message</dt>
+            <dd class="col-sm-10">@main.Message</dd>
+        </dl>
+        <div>
+            <a href="@($"/mains/edit?id={main.Id}")">Edit</a> |
+            <a href="@($"/mains")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Main? main;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        main = await context.Main.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (main is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

@@ -1,0 +1,44 @@
+﻿@page "/mains/create"
+@using Microsoft.EntityFrameworkCore
+@using SpaProject.Models
+@inject IDbContextFactory<SpaProject.Data.SpaProjectContextMainDB> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Main</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Main" OnValidSubmit="AddMain" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="message" class="form-label">Message:</label> 
+                <InputText id="message" @bind-Value="Main.Message" class="form-control" /> 
+                <ValidationMessage For="() => Main.Message" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/mains">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Main Main { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddMain()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Main.Add(Main);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/mains");
+    }
+}
