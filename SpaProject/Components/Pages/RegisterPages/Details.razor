@@ -1,0 +1,48 @@
+﻿@page "/registers/details"
+@using Microsoft.EntityFrameworkCore
+@using SpaProject.Models
+@inject IDbContextFactory<SpaProject.Data.SpaProjectRegisterDB> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Register</h2>
+    <hr />
+    @if (register is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Email</dt>
+            <dd class="col-sm-10">@register.Email</dd>
+            <dt class="col-sm-2">Password</dt>
+            <dd class="col-sm-10">@register.Password</dd>
+        </dl>
+        <div>
+            <a href="@($"/registers/edit?id={register.Id}")">Edit</a> |
+            <a href="@($"/registers")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Register? register;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        register = await context.Register.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (register is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

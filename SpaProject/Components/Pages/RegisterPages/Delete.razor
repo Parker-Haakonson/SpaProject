@@ -1,0 +1,59 @@
+﻿@page "/registers/delete"
+@using Microsoft.EntityFrameworkCore
+@using SpaProject.Models
+@inject IDbContextFactory<SpaProject.Data.SpaProjectRegisterDB> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Register</h2>
+    <hr />
+    @if (register is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Email</dt>
+            <dd class="col-sm-10">@register.Email</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Password</dt>
+            <dd class="col-sm-10">@register.Password</dd>
+        </dl>
+        <EditForm method="post" Model="register" OnValidSubmit="DeleteRegister" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(register is null)">Delete</button> |
+            <a href="/registers">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Register? register;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        register = await context.Register.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (register is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteRegister()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Register.Remove(register!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/registers");
+    }
+}
