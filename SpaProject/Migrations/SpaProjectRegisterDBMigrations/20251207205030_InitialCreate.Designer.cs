@@ -11,7 +11,7 @@ using SpaProject.Data;
 namespace SpaProject.Migrations.SpaProjectRegisterDBMigrations
 {
     [DbContext(typeof(SpaProjectRegisterDB))]
-    [Migration("20251207203618_InitialCreate")]
+    [Migration("20251207205030_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

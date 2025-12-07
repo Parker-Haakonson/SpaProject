@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SpaProject.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContextFactory<SpaProjectRegisterDB>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SpaProjectRegisterDB") ?? throw new InvalidOperationException("Connection string 'SpaProjectRegisterDB' not found.")));
 builder.Services.AddDbContextFactory<SpaProjectContextMainDB>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SpaProjectContextMainDB") ?? throw new InvalidOperationException("Connection string 'SpaProjectContextMainDB' not found.")));
 
