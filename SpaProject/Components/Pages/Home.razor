@@ -2,35 +2,34 @@
 
 <PageTitle>Home</PageTitle>
 
-<div class="container">
-    <div class="badge bg-primary text-wrap fw-bold" style="width: 10rem;">
-        Login, or register below:
-    </div>
-<form>
-    <br/>    <!-- Email input -->
-    <div data-mdb-input-init class="form-outline mb-4">
-        <input type="email" id="form2Example1" class="form-control" />
-        <label class="form-label" for="form2Example1">Email address</label>
-    </div>
+<div class="container d-flex justify-content-center">
+    <div class="w-100" style="max-width: 400px;">
 
-    <!-- Password input -->
-    <div data-mdb-input-init class="form-outline mb-4">
-        <input type="password" id="form2Example2" class="form-control" />
-        <label class="form-label" for="form2Example2">Password</label>
-    </div>
-
-    <!-- 2 column grid layout for inline styling -->
-    <div class="row mb-4">
-        <div class="col d-flex justify-content-center">
+        <div class="text-center mb-3">
+            <span class="badge bg-primary fw-bold">
+                Login, or register below:
+            </span>
         </div>
-    </div>
 
-    <!-- Submit button -->
-    <button type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block mb-4">Sign in</button>
+        <form>
+            <div class="form-outline mb-4">
+                <input type="email" id="form2Example1" class="form-control" />
+                <label class="form-label" for="form2Example1">Email address</label>
+            </div>
 
-    <!-- Register buttons -->
-    <div class="text-center">
-        <p>Not a member? <a href="#!">Register</a></p>
+            <div class="form-outline mb-4">
+                <input type="password" id="form2Example2" class="form-control" />
+                <label class="form-label" for="form2Example2">Password</label>
+            </div>
+
+            <button type="button" class="btn btn-primary w-100 mb-4">
+                Sign in
+            </button>
+
+            <div class="text-center">
+                <p>Not a member? <a href="#!">Register</a></p>
+            </div>
+        </form>
+
     </div>
-</form>
 </div>
