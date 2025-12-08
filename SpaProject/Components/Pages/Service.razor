@@ -1,0 +1,107 @@
+﻿@page "/service"
+@using System.Collections.Generic
+
+@code {
+
+    List<SpaService> Services = new()
+    {
+        new SpaService
+        {
+            Name = "Full Body Massage",
+            Description = "A relaxing massage designed to relieve stress, improve circulation, and promote overall wellness.",
+            Price30 = 50,
+            Price60 = 90,
+            Price90 = 130
+        },
+        new SpaService
+        {
+            Name = "Hot Stone Massage",
+            Description = "Smooth, heated stones are used to ease muscle tension and enhance deep relaxation.",
+            Price30 = 65,
+            Price60 = 110,
+            Price90 = 155
+        },
+        new SpaService
+        {
+            Name = "Thai Massage",
+            Description = "A traditional therapy combining stretching, pressure points, and assisted yoga-like movements.",
+            Price30 = 60,
+            Price60 = 100,
+            Price90 = 140
+        },
+        new SpaService
+        {
+            Name = "Sports Massage",
+            Description = "Focused treatment to improve athletic performance, prevent injuries, and aid muscle recovery.",
+            Price30 = 70,
+            Price60 = 120,
+            Price90 = 165
+        }
+    };
+
+    void Book(string serviceName, int duration)
+    {
+        // You can later connect this to a booking page or database
+        Console.WriteLine($"Booking requested: {serviceName} - {duration} minutes");
+    }
+
+    class SpaService
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public int Price30 { get; set; }
+        public int Price60 { get; set; }
+        public int Price90 { get; set; }
+    }
+}
+
+<h1 class="page-title">Our Massage Services</h1>
+
+<div class="services-container">
+    @foreach (var service in Services)
+    {
+        <div class="service-card">
+            <h2>@service.Name</h2>
+            <p class="description">@service.Description</p>
+
+            <table class="pricing-table">
+                <thead>
+                    <tr>
+                        <th>Duration</th>
+                        <th>Price</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>30 Minutes</td>
+                        <td>$@service.Price30</td>
+                        <td>
+                            <button class="book-btn" @onclick="() => Book(service.Name, 30)">
+                                Book
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>60 Minutes</td>
+                        <td>$@service.Price60</td>
+                        <td>
+                            <button class="book-btn" @onclick="() => Book(service.Name, 60)">
+                                Book
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>90 Minutes</td>
+                        <td>$@service.Price90</td>
+                        <td>
+                            <button class="book-btn" @onclick="() => Book(service.Name, 90)">
+                                Book
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
