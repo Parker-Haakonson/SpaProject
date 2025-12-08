@@ -61,8 +61,8 @@
     @foreach (var service in Services)
     {
         <div class="service-card">
-            <h2>@service.Name</h2>
-            <p class="description">@service.Description</p>
+            <h2 class="fw-bold">@service.Name</h2>
+            <p class="description fst-italic">@service.Description</p>
 
             <table class="pricing-table">
                 <thead>
@@ -74,34 +74,37 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>30 Minutes</td>
+                        <td>30 Minutes  </td>
+                        <td>
+                            <button class="btn-primary" @onclick="() => Book(service.Name, 30)">
+                                Book
+                            </button>
+                        </td>
                         <td>$@service.Price30</td>
+                    </tr>
+                    <tr>
+                        <td>60 Minutes  </td>
+                        
                         <td>
-                            <button class="book-btn" @onclick="() => Book(service.Name, 30)">
+                            <button class="btn-primary" @onclick="() => Book(service.Name, 60)">
                                 Book
                             </button>
                         </td>
-                    </tr>
-                    <tr>
-                        <td>60 Minutes</td>
                         <td>$@service.Price60</td>
-                        <td>
-                            <button class="book-btn" @onclick="() => Book(service.Name, 60)">
-                                Book
-                            </button>
-                        </td>
                     </tr>
                     <tr>
-                        <td>90 Minutes</td>
-                        <td>$@service.Price90</td>
+                        <td>90 Minutes &nbsp; &nbsp; &nbsp;</td>
+                        
                         <td>
-                            <button class="book-btn" @onclick="() => Book(service.Name, 90)">
+                            <button class="btn-primary" @onclick="() => Book(service.Name, 90)">
                                 Book
                             </button>
                         </td>
+                        <td>$@service.Price90</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     }
+<br/>
 </div>
