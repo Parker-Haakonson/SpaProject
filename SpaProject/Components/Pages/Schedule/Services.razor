@@ -1,8 +1,10 @@
 ﻿@page "/service"
 @using System.Collections.Generic
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
 
 @code {
-    List<SpaService> Services = new()
+    List<SpaService> Service = new()
     {
         new SpaService
         {
@@ -54,10 +56,11 @@
     }
 }
 
+
 <h1 class="page-title">Our Massage Services</h1>
 
 <div class="services-container">
-    @foreach (var service in Services)
+    @foreach (var service in Service)
     {
         <div class="service-card">
             <h2 class="fw-bold">@service.Name</h2>
@@ -76,7 +79,7 @@
                     <tr>
                         <td>30 Minutes  </td>
                         <td>
-                            <button class="btn-primary" @onclick="() => Book(service.Name, 60)">
+                            <button class="btn-primary" @onclick="() => btnClick(service.Name,30)">
                                 Book
                             </button>
                         </td>
@@ -86,7 +89,7 @@
                         <td>60 Minutes  </td>
                         
                         <td>
-                            <button class="btn-primary" @onclick="() => Book(service.Name, 60)">
+                            <button class="btn-primary" @onclick="() => btnClick(service.Name, 60)">
                                 Book
                             </button>
                         </td>
@@ -96,7 +99,7 @@
                         <td>90 Minutes &nbsp; &nbsp; &nbsp;</td>
                         
                         <td>
-                            <button class="btn-primary" @onclick="() => Book(service.Name, 90)">
+                            <button class="btn-primary" @onclick="() => btnClick(service.Name, 90)">
                                 Book
                             </button>
                         </td>
@@ -108,3 +111,10 @@
     }
 <br/>
 </div>
+
+@code {
+    public void btnClick(string serviceName, int duration)
+    {
+        NavigationManager.NavigateTo($"/service/selected/{serviceName}/{duration}");
+    }
+}
