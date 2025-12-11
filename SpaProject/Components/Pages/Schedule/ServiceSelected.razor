@@ -1,5 +1,6 @@
 ﻿@page "/service/selected/{serviceName}/{duration}"
 @using System.Collections.Generic
+@rendermode InteractiveServer
 
 <h3>Select a time</h3>
 
@@ -12,16 +13,26 @@
     <p>Next step, select a date and time</p>
 
     <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Month" aria-label="Month" aria-describedby="basic-addon2">
+        <input type="text" class="form-control" placeholder="Month" aria-label="Month" aria-describedby="basic-addon2" @bind="Month">
     </div>
     <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Day" aria-label="Day" aria-describedby="basic-addon2">
+        <input type="text" class="form-control" placeholder="Day" aria-label="Day" aria-describedby="basic-addon2" @bind="Day">
     </div>
     <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Year" aria-label="Year" aria-describedby="basic-addon2">
+        <input type="text" class="form-control" placeholder="Year" aria-label="Year" aria-describedby="basic-addon2" @bind="Year">
     </div>
 
-    <button class="btn btn-primary">Schedule time!</button>
+    <button class="btn btn-primary" @onclick="CheckTime">Schedule time!</button>
+</div>
+<br/>
+<br/>
+<div class="container">
+    @if (falseTime)
+    {
+        <div class="alert alert-danger" role="alert">
+            Incorrect time entered!
+        </div>
+    }
 </div>
 
 @code {
@@ -29,4 +40,22 @@
     public string? serviceName { get; set; }
     [Parameter]
     public string? duration { get; set; }
+
+    public bool falseTime = false;
+
+    public int? Month { get; set; }
+
+    public int? Day { get; set; }
+
+    public int? Year { get; set; }
+
+    public void CheckTime()
+    {
+        if(Year<2025 || Day <1 || Day>31 || Month<1 || Month>12 ||Year==null || Day==null || Month==null)
+        {
+            falseTime = true;
+        }
+        else
+            falseTime = false;
+    }
 }
