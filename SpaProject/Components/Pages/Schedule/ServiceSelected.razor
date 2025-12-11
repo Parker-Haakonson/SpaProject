@@ -3,10 +3,17 @@
 @rendermode InteractiveServer
 
 <h3>Select a time</h3>
-
+@if(LogedIn.GetLogedIn() == false)
+{
+    <div class="alert alert-danger" role="alert">
+        You must be logged in to schedule a service!
+    </div>
+}
+@if (LogedIn.GetLogedIn() == true)
+    {
 <p>Great choice! A @serviceName for @duration minutes is our favorite.</p>
 
-<br/>
+<br />
 
 <div class="container">
 
@@ -24,8 +31,8 @@
 
     <button class="btn btn-primary" @onclick="CheckTime">Schedule time!</button>
 </div>
-<br/>
-<br/>
+<br />
+<br />
 <div class="container">
     @if (falseTime)
     {
@@ -34,6 +41,8 @@
         </div>
     }
 </div>
+    }
+
 
 @code {
     [Parameter]

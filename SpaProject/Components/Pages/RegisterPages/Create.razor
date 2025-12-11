@@ -6,8 +6,6 @@
 
 <PageTitle>Create</PageTitle>
 
-<h1>Create</h1>
-
 <h2>Register</h2>
 <hr />
 <div class="row">
@@ -26,19 +24,10 @@
                 <label for="password" class="form-label">Password:</label> 
                 <InputText id="password" @bind-Value="Register.Password" class="form-control" aria-required="true"/> 
                 <ValidationMessage For="() => Register.Password" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="isadmin" class="form-label">IsAdmin:</label> 
-                <InputCheckbox id="isadmin" @bind-Value="Register.IsAdmin" class="form-check-input" /> 
-                <ValidationMessage For="() => Register.IsAdmin" class="text-danger" /> 
-            </div>        
+            </div>           
             <button type="submit" class="btn btn-primary">Create</button>
         </EditForm>
     </div>
-</div>
-
-<div>
-    <a href="/registers">Back to List</a>
 </div>
 
 @code {

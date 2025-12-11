@@ -1,3 +1,82 @@
 ﻿@page "/Login"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using SpaProject.Data
+@using SpaProject.Models
+@inject IDbContextFactory<SpaProject.Data.SpaProjectRegisterDB> DbFactory
+@inject NavigationManager Navigation
 
-<SpaProject.Components.Pages.RegisterPages.Create />
+<h2>Login</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <input class="form-control" type="text" placeholder="Email" @bind="email" />
+        <br />
+        <input class="form-control" type="password" placeholder="Password" @bind="password"/>
+        <br />
+        <button class="btn btn-primary" @onclick="clicked">Login</button>
+        <br />
+    </div>
+</div>
+<br />
+<div>
+            @if(incorrect)
+        {
+            <div class="alert alert-danger" role="alert">
+                Incorrect password
+            </div>
+        }
+</div>
+<br />
+<a href="registers/create">Not a member? Register here</a>
+
+
+
+@code {
+    string message = "";
+    bool incorrect = false;
+    string email = "";
+    string password = "";
+
+    private record Credential(string Email, string Password);
+
+    private List<Credential>? Credentials;
+
+    public void clicked()
+    {
+        foreach(var c in Credentials!)
+        {
+            if(c.Email.Equals(email))
+            {
+                if(c.Password.Equals(password))
+                {
+                    incorrect = false;
+                    LogedIn.SetLogedIn(true);
+                    Navigation.NavigateTo("/");
+                }
+                else
+                {
+                    incorrect = true;
+                }
+            }
+            else
+            {
+                incorrect = true;
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Create a DbContext from the factory
+        await using var ctx = await DbFactory.CreateDbContextAsync();
+
+        // Replace `Register` with your actual entity type name if different.
+        // This assumes there is an entity with `Email` and `Password` properties.
+        Credentials = await ctx.Set<Register>()
+                               .AsNoTracking()
+                               .Select(r => new Credential(r.Email!, r.Password!))
+                               .ToListAsync();
+    }
+
+}
