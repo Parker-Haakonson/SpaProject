@@ -38,7 +38,7 @@
     string email = "";
     string password = "";
 
-    private record Credential(string Email, string Password);
+    private record Credential(string Email, string Password, bool isAdmin);
 
     private List<Credential>? Credentials;
 
@@ -51,7 +51,8 @@
                 if(c.Password.Equals(password))
                 {
                     incorrect = false;
-                    LogedIn.SetLogedIn(true);
+                    bool ia = c.isAdmin;
+                    SetLoggedin(ia);
                     Navigation.NavigateTo("/");
                 }
                 else
@@ -75,8 +76,15 @@
         // This assumes there is an entity with `Email` and `Password` properties.
         Credentials = await ctx.Set<Register>()
                                .AsNoTracking()
-                               .Select(r => new Credential(r.Email!, r.Password!))
+                               .Select(r => new Credential(r.Email!, r.Password!, r.IsAdmin!))
                                .ToListAsync();
+    }
+    public void SetLoggedin(bool ia)
+    {
+        LogedIn.SetLogedIn(true);
+        LogedIn.SetEmail(email);
+        LogedIn.SetPassword(password);
+        LogedIn.SetIsAdmin(ia);
     }
 
 }

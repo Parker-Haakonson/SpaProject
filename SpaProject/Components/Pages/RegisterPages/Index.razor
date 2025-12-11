@@ -5,6 +5,7 @@
 @using SpaProject.Data
 @implements IAsyncDisposable
 @inject IDbContextFactory<SpaProject.Data.SpaProjectRegisterDB> DbFactory
+@inject NavigationManager Navigation
 
 <PageTitle>Index</PageTitle>
 
@@ -31,7 +32,12 @@
 
     protected override void OnInitialized()
     {
+        
         context = DbFactory.CreateDbContext();
+        if (LogedIn.GetIsAdmin() == false)
+        {
+            Navigation.NavigateTo("/");
+        }
     }
 
     public async ValueTask DisposeAsync() => await context.DisposeAsync();
