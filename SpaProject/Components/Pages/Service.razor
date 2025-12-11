@@ -2,7 +2,6 @@
 @using System.Collections.Generic
 
 @code {
-
     List<SpaService> Services = new()
     {
         new SpaService
@@ -69,6 +68,7 @@
                     <tr>
                         <th>Duration</th>
                         <th>Price</th>
+
                         <th></th>
                     </tr>
                 </thead>
@@ -76,7 +76,7 @@
                     <tr>
                         <td>30 Minutes  </td>
                         <td>
-                            <button class="btn-primary" @onclick="() => Book(service.Name, 30)">
+                            <button class="btn-primary" @onclick="() => Book(service.Name, 60)">
                                 Book
                             </button>
                         </td>
