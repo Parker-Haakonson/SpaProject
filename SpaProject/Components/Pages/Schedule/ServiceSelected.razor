@@ -1,0 +1,32 @@
+﻿@page "/service/selected/{serviceName}/{duration}"
+@using System.Collections.Generic
+
+<h3>Select a time</h3>
+
+<p>Great choice! A @serviceName for @duration minutes is our favorite.</p>
+
+<br/>
+
+<div class="container">
+
+    <p>Next step, select a date and time</p>
+
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Month" aria-label="Month" aria-describedby="basic-addon2">
+    </div>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Day" aria-label="Day" aria-describedby="basic-addon2">
+    </div>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Year" aria-label="Year" aria-describedby="basic-addon2">
+    </div>
+
+    <button class="btn btn-primary">Schedule time!</button>
+</div>
+
+@code {
+    [Parameter]
+    public string? serviceName { get; set; }
+    [Parameter]
+    public string? duration { get; set; }
+}
