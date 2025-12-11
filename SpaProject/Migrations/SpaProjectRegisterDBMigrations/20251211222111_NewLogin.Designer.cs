@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpaProject.Data;
 
@@ -10,9 +11,11 @@ using SpaProject.Data;
 namespace SpaProject.Migrations.SpaProjectRegisterDBMigrations
 {
     [DbContext(typeof(SpaProjectRegisterDB))]
-    partial class SpaProjectRegisterDBModelSnapshot : ModelSnapshot
+    [Migration("20251211222111_NewLogin")]
+    partial class NewLogin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
