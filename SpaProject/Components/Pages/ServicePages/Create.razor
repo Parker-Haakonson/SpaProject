@@ -16,6 +16,11 @@
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert"/>
             <div class="mb-3">
+                <label for="customerid" class="form-label">CustomerId:</label> 
+                <InputNumber id="customerid" @bind-Value="Service.CustomerId" class="form-control" /> 
+                <ValidationMessage For="() => Service.CustomerId" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
                 <label for="name" class="form-label">Name:</label> 
                 <InputText id="name" @bind-Value="Service.Name" class="form-control" /> 
                 <ValidationMessage For="() => Service.Name" class="text-danger" /> 

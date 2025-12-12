@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpaProject.Data;
 
@@ -10,9 +11,11 @@ using SpaProject.Data;
 namespace SpaProject.Migrations.SpaProjectServiceDBMigrations
 {
     [DbContext(typeof(SpaProjectServiceDB))]
-    partial class SpaProjectServiceDBModelSnapshot : ModelSnapshot
+    [Migration("20251212070517_SecondMigration")]
+    partial class SecondMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
