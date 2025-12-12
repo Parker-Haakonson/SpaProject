@@ -32,7 +32,7 @@
 
     protected override void OnInitialized()
     {
-        
+
         context = DbFactory.CreateDbContext();
         if (LogedIn.GetIsAdmin() == false)
         {

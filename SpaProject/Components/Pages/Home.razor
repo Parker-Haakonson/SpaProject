@@ -53,11 +53,21 @@
                     incorrect = false;
                     bool ia = c.isAdmin;
                     SetLoggedin(ia);
-                    Navigation.NavigateTo("/");
+
+                    if (ia)
+                    {
+                        Navigation.NavigateTo("/registers");
+                    }
+                    else
+                    {
+                        Navigation.NavigateTo("/");
+                    }
+                    return;
                 }
                 else
                 {
                     incorrect = true;
+                    return;
                 }
             }
             else
