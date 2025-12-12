@@ -3,7 +3,7 @@
     static class LogedIn
     {
         static bool IsLogedIn = false;
-
+        static int id;
         static string email;
         static string password;
         static bool isAdmin = false;
@@ -38,6 +38,14 @@
         static public void SetIsAdmin(bool IsAdmin)
         {
             isAdmin = IsAdmin;
+        }
+        static public int GetId()
+        {
+            return id;
+        }
+        static public void SetId(int Id)
+        {
+            id = Id;
         }
     }
 }
