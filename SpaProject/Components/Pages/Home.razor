@@ -20,12 +20,12 @@
 </div>
 <br />
 <div>
-            @if(incorrect)
-        {
-            <div class="alert alert-danger" role="alert">
-                Incorrect password
-            </div>
-        }
+    @if(incorrect)
+    {
+        <div class="alert alert-danger" role="alert">
+            Incorrect password
+        </div>
+    }
 </div>
 <br />
 <a href="registers/create">Not a member? Register here</a>
@@ -38,7 +38,7 @@
     string email = "";
     string password = "";
 
-    private record Credential(string Email, string Password, bool isAdmin);
+    private record Credential(string Email, string Password, bool isAdmin, int id);
 
     private List<Credential>? Credentials;
 
@@ -52,7 +52,8 @@
                 {
                     incorrect = false;
                     bool ia = c.isAdmin;
-                    SetLoggedin(ia);
+                    int id = c.id;
+                    SetLoggedin(ia, id);
                     Navigation.NavigateTo("/");
                 }
                 else
@@ -76,15 +77,16 @@
         // This assumes there is an entity with `Email` and `Password` properties.
         Credentials = await ctx.Set<Register>()
                                .AsNoTracking()
-                               .Select(r => new Credential(r.Email!, r.Password!, r.IsAdmin!))
+                               .Select(r => new Credential(r.Email!, r.Password!, r.IsAdmin!, r.Id))
                                .ToListAsync();
     }
-    public void SetLoggedin(bool ia)
+    public void SetLoggedin(bool ia, int id)
     {
         LogedIn.SetLogedIn(true);
         LogedIn.SetEmail(email);
         LogedIn.SetPassword(password);
         LogedIn.SetIsAdmin(ia);
+		LogedIn.SetId(id);
     }
 
 }

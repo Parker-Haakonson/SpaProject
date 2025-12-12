@@ -1,0 +1,76 @@
+﻿@page "/services/create"
+@using Microsoft.EntityFrameworkCore
+@using SpaProject.Models
+@inject IDbContextFactory<SpaProject.Data.SpaProjectServiceDB> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Service</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Service" OnValidSubmit="AddService" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="Service.Name" class="form-control" /> 
+                <ValidationMessage For="() => Service.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="price" class="form-label">Price:</label> 
+                <InputNumber id="price" @bind-Value="Service.Price" class="form-control" /> 
+                <ValidationMessage For="() => Service.Price" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="assignedstaff" class="form-label">assignedStaff:</label> 
+                <InputText id="assignedstaff" @bind-Value="Service.assignedStaff" class="form-control" /> 
+                <ValidationMessage For="() => Service.assignedStaff" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="month" class="form-label">month:</label> 
+                <InputNumber id="month" @bind-Value="Service.month" class="form-control" /> 
+                <ValidationMessage For="() => Service.month" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="year" class="form-label">year:</label> 
+                <InputNumber id="year" @bind-Value="Service.year" class="form-control" /> 
+                <ValidationMessage For="() => Service.year" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="day" class="form-label">day:</label> 
+                <InputNumber id="day" @bind-Value="Service.day" class="form-control" /> 
+                <ValidationMessage For="() => Service.day" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="time" class="form-label">time:</label> 
+                <InputNumber id="time" @bind-Value="Service.time" class="form-control" /> 
+                <ValidationMessage For="() => Service.time" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/services">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Service Service { get; set; } = default!;
+
+    protected override void OnInitialized() => Service ??= new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddService()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Service.Add(Service);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/services");
+    }
+}
