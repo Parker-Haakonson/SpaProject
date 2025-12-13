@@ -1,6 +1,10 @@
-﻿@page "/service/selected/{serviceName}/{duration}"
+﻿@page "/service/selected/{serviceName}/{duration}/{price}"
 @using System.Collections.Generic
+@using Microsoft.EntityFrameworkCore
+@using SpaProject.Data
+@using SpaProject.Models
 @rendermode InteractiveServer
+@inject IDbContextFactory<SpaProject.Data.SpaProjectServiceDB> DbFactory
 
 <h3>Select a time</h3>
 @if(LogedIn.GetLogedIn() == false)
@@ -10,45 +14,57 @@
     </div>
 }
 @if (LogedIn.GetLogedIn() == true)
-    {
-<p>Great choice! A @serviceName for @duration minutes is our favorite.</p>
+{
+    <p>Great choice! A @serviceName for @duration minutes is our favorite.</p>
 
-<br />
+    <br />
 
-<div class="container">
+    <div class="container">
 
-    <p>Next step, select a date and time</p>
+        <p>Next step, select a date and time</p>
 
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Month" aria-label="Month" aria-describedby="basic-addon2" @bind="Month">
-    </div>
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Day" aria-label="Day" aria-describedby="basic-addon2" @bind="Day">
-    </div>
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Year" aria-label="Year" aria-describedby="basic-addon2" @bind="Year">
-    </div>
-
-    <button class="btn btn-primary" @onclick="CheckTime">Schedule time!</button>
-</div>
-<br />
-<br />
-<div class="container">
-    @if (falseTime)
-    {
-        <div class="alert alert-danger" role="alert">
-            Incorrect time entered!
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Month" aria-label="Month" aria-describedby="basic-addon2" @bind="Month">
         </div>
-    }
-</div>
-    }
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Day" aria-label="Day" aria-describedby="basic-addon2" @bind="Day">
+        </div>
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Year" aria-label="Year" aria-describedby="basic-addon2" @bind="Year">
+        </div>
+
+        <button class="btn btn-primary" @onclick="CheckTime">Schedule time!</button>
+    </div>
+    <br />
+    <br />
+    <div class="container">
+        @if (falseTime)
+        {
+            <div class="alert alert-danger" role="alert">
+                Incorrect time entered!
+            </div>
+        }
+    </div>
+    <div class="container">
+        @if (success)
+        {
+            <div class="alert alert-success" role="alert">
+                Successfully scheduled appointment!
+            </div>
+        }
+    </div>
+}
 
 
 @code {
+    [SupplyParameterFromForm]
+    private Service Service { get; set; } = default!;
     [Parameter]
     public string? serviceName { get; set; }
     [Parameter]
     public string? duration { get; set; }
+    [Parameter]
+    public string? price { get; set; }
 
     public bool falseTime = false;
 
@@ -58,13 +74,55 @@
 
     public int? Year { get; set; }
 
-    public void CheckTime()
+    public bool success = false;
+
+    protected override void OnInitialized() => Service ??= new();
+
+    public async Task CheckTime()
     {
         if(Year<2025 || Day <1 || Day>31 || Month<1 || Month>12 ||Year==null || Day==null || Month==null)
         {
             falseTime = true;
         }
-        else
+        else{
             falseTime = false;
+            await ScheduleTime();
+        }
     }
+    public async Task ScheduleTime()
+    {
+        var dbService = new Service();
+        // Assuming SpaProjectServiceDB is a service injected into the component
+        if (Month.HasValue && Day.HasValue && Year.HasValue)
+        {
+            var scheduledDate = new DateTime(Year.Value, Month.Value, Day.Value);
+
+            // Call the database service to save the scheduled time
+                       dbService = new Service{
+                       
+                        CustomerId = LogedIn.GetId(),
+					Name = serviceName,
+					Price = decimal.Parse(price),
+					assignedStaff = "Not Assigned",
+					month = Month.Value,
+                    year = Year.Value,
+                    day = Day.Value,
+					time = int.Parse(duration),
+
+
+                       };
+
+               // Provide feedback to the user (e.g., redirect or show confirmation)
+               Console.WriteLine("Service scheduled successfully!");
+           }
+		await AddService(dbService);
+       }
+    private async Task AddService(Service dbService)
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Service.Add(dbService);
+        await context.SaveChangesAsync();
+        success = true;
+    }
+
 }
