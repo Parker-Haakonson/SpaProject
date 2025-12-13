@@ -52,7 +52,8 @@
                 {
                     incorrect = false;
                     bool ia = c.isAdmin;
-                    SetLoggedin(ia);
+                    int id = c.id;
+                    SetLoggedin(ia, id);
                     Navigation.NavigateTo("/");
                 }
                 else
