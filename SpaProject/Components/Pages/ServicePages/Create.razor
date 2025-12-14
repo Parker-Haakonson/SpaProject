@@ -2,6 +2,7 @@
 @using Microsoft.EntityFrameworkCore
 @using SpaProject.Models
 @inject IDbContextFactory<SpaProject.Data.SpaProjectServiceDB> DbFactory
+@inject IDbContextFactory<SpaProject.Data.SpaProjectRegisterDB> RegisterDbFactory
 @inject NavigationManager NavigationManager
 
 <PageTitle>Create</PageTitle>
@@ -32,7 +33,13 @@
             </div>        
             <div class="mb-3">
                 <label for="assignedstaff" class="form-label">assignedStaff:</label> 
-                <InputText id="assignedstaff" @bind-Value="Service.assignedStaff" class="form-control" /> 
+                <InputSelect id="assignedstaff" @bind-Value="Service.assignedStaff" class="form-control" > 
+                <option value="">Select Staff</option>
+                @foreach (var email in AdminEmails)
+                {
+                    <option value= "@email">@email</option>
+                }
+                </InputSelect>
                 <ValidationMessage For="() => Service.assignedStaff" class="text-danger" /> 
             </div>        
             <div class="mb-3">
@@ -67,8 +74,19 @@
 @code {
     [SupplyParameterFromForm]
     private Service Service { get; set; } = default!;
+    private List<string> AdminEmails = new();
 
-    protected override void OnInitialized() => Service ??= new();
+    protected override void OnInitialized() 
+    { 
+        Service ??= new();
+
+        using var context = RegisterDbFactory.CreateDbContext();
+
+        AdminEmails = context.Register
+                        .Where(r => r.IsAdmin)
+                        .Select(r=> r.Email!)
+                        .ToList();
+    }
 
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
     private async Task AddService()
