@@ -32,21 +32,18 @@
         max-width: 850px;
         margin: auto;
         padding: 28px;
-        line-height: 2.2; /* Increased from 1.8 for more vertical spacing */
-        color: #ffffff;
-        background: transparent;
+        line-height: 1.8;
+        color: #ffffff; /* high contrast text */
+        background: transparent; /* keep no square behind the text */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        letter-spacing: 0.5px; /* Added letter spacing for better readability */
     }
 
     /* Slightly enlarge body text for readability */
     .section-paragraph {
-        font-size: 1.2rem; /* Increased from 1.125rem */
-        margin-bottom: 2.5rem; /* Increased from 1.4rem for more space between paragraphs */
+        font-size: 1.125rem;
+        margin-bottom: 1.4rem;
         color: rgba(255,255,255,0.95);
-        line-height: 2.4; /* Extra spacing for paragraph text */
-        word-spacing: 2px; /* Added word spacing */
     }
 
     /* Headings: clean white with subtle text shadow to improve legibility on busy areas */
@@ -54,89 +51,51 @@
         font-family: 'Playfair Display', serif;
         color: #fff;
         text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-        margin: 0 0 1.5rem 0; /* Increased bottom margin from 0.6rem */
-        letter-spacing: 1px; /* Added letter spacing to headings */
+        margin: 0 0 0.6rem 0;
     }
 
     h1 {
-        font-size: 2.8rem; /* Slightly increased from 2.6rem */
+        font-size: 2.6rem;
         text-align: center;
-        margin-bottom: 2.5rem; /* Increased from 1rem */
-        letter-spacing: 1.5px; /* Increased letter spacing */
+        margin-bottom: 1rem;
+        letter-spacing: 0.25px;
     }
 
     h2 {
-        font-size: 2rem; /* Increased from 1.9rem */
-        margin-top: 3.5rem; /* Increased from 2rem for more section spacing */
-        margin-bottom: 2rem; /* Increased bottom margin */
+        font-size: 1.9rem;
+        margin-top: 2rem;
     }
 
     h3 {
-        font-size: 1.35rem; /* Increased from 1.25rem */
-        margin-top: 2rem; /* Increased from 1.2rem */
-        margin-bottom: 1.2rem; /* Added bottom margin */
+        font-size: 1.25rem;
+        margin-top: 1.2rem;
     }
 
     .staff-list ul {
         list-style-type: none;
         padding-left: 0;
-        margin-bottom: 2.5rem; /* Added margin between staff sections */
     }
 
     .staff-list li {
-        padding: 12px 0; /* Increased from 6px for more spacing between items */
-        font-size: 1.1rem; /* Increased from 1rem */
+        padding: 6px 0;
+        font-size: 1rem;
         color: rgba(255,255,255,0.92);
-        line-height: 2; /* Added line height for list items */
-        letter-spacing: 0.4px; /* Added letter spacing */
     }
 
-    /* Business Hours and Certifications lists */
-    .info-container > ul {
-        margin-bottom: 2.5rem;
-        padding-left: 1.5rem;
-        line-height: 2.2; /* Increased spacing between list items */
-    }
+    /* Improve contrast on smaller screens by increasing overlay opacity */
+  
 
-    .info-container > ul li {
-        padding: 10px 0; /* Added padding to list items */
-        font-size: 1.1rem; /* Increased font size */
-        color: rgba(255,255,255,0.92);
-        letter-spacing: 0.4px; /* Added letter spacing */
-        margin-bottom: 0.8rem; /* Added margin between items */
-    }
-
-    /* Strong tags spacing */
-    .info-container strong {
-        letter-spacing: 0.6px; /* Added letter spacing for bold text */
-    }
-
- 
+        .section-paragraph {
+            font-size: 1.125rem;
+        }
 
         h1 {
             font-size: 2.2rem;
-            margin-bottom: 2rem;
-        }
-
-        h2 {
-            font-size: 1.75rem;
-            margin-top: 3rem;
-        }
-
-        h3 {
-            font-size: 1.25rem;
-        }
-
-        .info-container {
-            padding: 20px;
-        }
-
-        .staff-list li,
-        .info-container > ul li {
-            font-size: 1.05rem;
-            padding: 10px 0;
         }
     }
+
+    /* Optional: reduce overlay on very wide screens if you prefer more of the image visible */
+ 
 </style>
 
 <div class="info-bg">
@@ -146,7 +105,7 @@
         <p class="section-paragraph">
             Founded in 2016, Fargo Spa and Wellness is dedicated to providing a refined, rejuvenating, and holistic wellness experience. Our team specializes in therapeutic massage, relaxation treatments, and personalized wellness services designed to nurture both body and mind. Located in the heart of South Fargo, ND, our spa is committed to offering a calm, luxurious environment where guests feel supported, valued, and truly revitalized.
         </p>
-     
+
         <h2>Meet the Team</h2>
 
         <div class="staff-list">
@@ -169,14 +128,14 @@
             </ul>
         </div>
 
-        <h2>Business Hours</h2>
+        <h2 class="mt-5">Business Hours</h2>
         <ul>
             <li><strong>Monday – Friday:</strong> 9:00 AM – 7:00 PM</li>
             <li><strong>Saturday:</strong> 10:00 AM – 6:00 PM</li>
             <li><strong>Sunday:</strong> Closed</li>
         </ul>
 
-        <h2>Certifications & Licenses</h2>
+        <h2 class="mt-5">Certifications & Licenses</h2>
         <ul>
             <li><strong>Licensed Massage Therapy (LMT)</strong> – All staff certified in professional therapeutic practices</li>
             <li><strong>Certified Thai Massage Practitioner</strong> – Specialized training in traditional Thai techniques</li>
