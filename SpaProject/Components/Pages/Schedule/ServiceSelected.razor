@@ -6,117 +6,232 @@
 @rendermode InteractiveServer
 @inject IDbContextFactory<SpaProject.Data.SpaProjectServiceDB> DbFactory
 
-<h3>Select a time</h3>
-@if(LogedIn.GetLogedIn() == false)
-{
-    <div class="alert alert-danger" role="alert">
-        You must be logged in to schedule a service!
+<style>
+    /* Visual refresh — preserves existing bootstrap class names used elsewhere */
+    .selected-card {
+        max-width: 880px;
+        margin: 1.25rem auto;
+        padding: 1.25rem;
+        border-radius: 10px;
+        background: linear-gradient(180deg,#ffffff,#fbfeff);
+        border: 1px solid rgba(23,32,51,0.05);
+        box-shadow: 0 8px 20px rgba(23,32,51,0.04);
+    }
+
+    .selected-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .service-title {
+        margin: 0;
+        font-family: "Playfair Display", serif;
+        color: #172033;
+        font-size: 1.25rem;
+    }
+
+    .price-badge {
+        background: #eef6ff;
+        color: #0b2a66;
+        padding: 0.35rem 0.6rem;
+        border-radius: 999px;
+        font-weight: 700;
+        border: 1px solid rgba(11,42,102,0.06);
+    }
+
+    .help-text {
+        color: #475569;
+        font-size: 0.95rem;
+    }
+
+    .form-row {
+        margin-top: 0.6rem;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .staff-select {
+        min-width: 220px;
+    }
+</style>
+
+<div class="selected-card">
+    <div class="selected-header">
+        <div>
+            <h2 class="service-title">Schedule: @serviceName</h2>
+            <div class="help-text">Selected duration: <strong>@duration</strong> minutes</div>
+        </div>
+        <div class="price-badge" aria-hidden="true">$@price</div>
     </div>
-}
-@if (LogedIn.GetLogedIn() == true)
-{
-    <p>Great choice! A @serviceName for @duration minutes is our favorite.</p>
 
-    <br />
-
-    <div class="container">
-
-        <p>Next step, select a date and time</p>
-
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Month" aria-label="Month" aria-describedby="basic-addon2" @bind="Month">
+    @if (LogedIn.GetLogedIn() == false)
+    {
+        <div class="alert alert-danger" role="alert">
+            You must be logged in to schedule a service!
         </div>
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Day" aria-label="Day" aria-describedby="basic-addon2" @bind="Day">
-        </div>
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Year" aria-label="Year" aria-describedby="basic-addon2" @bind="Year">
-        </div>
+    }
+    else
+    {
+        <p class="help-text">Choose a date for your appointment (calendar), optionally select a staff member, then click <em>Schedule time!</em>.</p>
 
-        <button class="btn btn-primary" @onclick="CheckTime">Schedule time!</button>
-    </div>
-    <br />
-    <br />
-    <div class="container">
-        @if (falseTime)
-        {
-            <div class="alert alert-danger" role="alert">
-                Incorrect time entered!
+        <div class="form-row">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="date" class="form-label">Appointment Date</label>
+                    <!-- HTML5 calendar via Blazor InputDate -->
+                    <InputDate id="date" @bind-Value="SelectedDate" class="form-control" />
+                    <div class="form-text">Use the calendar to pick month/day/year.</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="staff" class="form-label">Preferred Staff</label>
+                    <InputSelect id="staff" @bind-Value="SelectedStaff" class="form-control staff-select" aria-label="Select staff">
+                        <option value="">Not Assigned</option>
+                        @foreach (var s in StaffNames)
+                        {
+                            <option value="@s">@s</option>
+                        }
+                    </InputSelect>
+                </div>
             </div>
-        }
-    </div>
-    <div class="container">
-        @if (success)
-        {
-            <div class="alert alert-success" role="alert">
-                Successfully scheduled appointment!
-            </div>
-        }
-    </div>
-}
 
+            <div class="actions">
+                
+                <button class="btn btn-primary" @onclick="CheckTime">Schedule time!</button>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            @if (falseTime)
+            {
+                <div class="alert alert-danger" role="alert">
+                    Incorrect date entered — please pick a valid date with year >= 2025.
+                </div>
+            }
+            @if (success)
+            {
+                <div class="alert alert-success" role="alert">
+                    Successfully scheduled appointment! <a href="/bookings" class="alert-link">View your bookings</a>
+                </div>
+            }
+        </div>
+    }
+</div>
 
 @code {
     [SupplyParameterFromForm]
     private Service Service { get; set; } = default!;
+
     [Parameter]
     public string? serviceName { get; set; }
+
     [Parameter]
     public string? duration { get; set; }
+
     [Parameter]
     public string? price { get; set; }
 
     public bool falseTime = false;
 
+    // kept for compatibility with existing Bookings table
     public int? Month { get; set; }
-
     public int? Day { get; set; }
-
     public int? Year { get; set; }
+
+    // new DateTime? bound to InputDate (calendar)
+    public DateTime? SelectedDate { get; set; }
 
     public bool success = false;
 
-    protected override void OnInitialized() => Service ??= new();
+    // Staff selection — names are taken from the Info page and used directly here
+    private List<string> StaffNames { get; set; } = new()
+    {
+      
+        "Sophia Martinez",
+        "Daniel Brooks",
+        "Emily Larson",
+        "Harper Nguyen"
+    };
+
+    public string? SelectedStaff { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Service ??= new();
+        SelectedStaff ??= string.Empty;
+    }
 
     public async Task CheckTime()
     {
-        if(Year<2025 || Day <1 || Day>31 || Month<1 || Month>12 ||Year==null || Day==null || Month==null)
+        // Use SelectedDate (calendar) for validation; fallback to individual fields if needed
+        if (SelectedDate == null)
         {
             falseTime = true;
+            success = false;
+            return;
         }
-        else{
-            falseTime = false;
-            await ScheduleTime();
+
+        if (SelectedDate.Value.Year < 2025)
+        {
+            falseTime = true;
+            success = false;
+            return;
         }
+
+        // populate Month/Day/Year so existing bookings code stays compatible
+        Month = SelectedDate.Value.Month;
+        Day = SelectedDate.Value.Day;
+        Year = SelectedDate.Value.Year;
+
+        falseTime = false;
+        await ScheduleTime();
     }
+
     public async Task ScheduleTime()
     {
         var dbService = new Service();
-        // Assuming SpaProjectServiceDB is a service injected into the component
+
         if (Month.HasValue && Day.HasValue && Year.HasValue)
         {
-            var scheduledDate = new DateTime(Year.Value, Month.Value, Day.Value);
+            // Preserve all the same saved properties so Bookings tab displays entries
+            var parsedPrice = 0m;
+            if (!string.IsNullOrEmpty(price))
+            {
+                decimal.TryParse(price, out parsedPrice);
+            }
 
-            // Call the database service to save the scheduled time
-                       dbService = new Service{
-                       
-                        CustomerId = LogedIn.GetId(),
-					Name = serviceName,
-					Price = decimal.Parse(price),
-					assignedStaff = "Not Assigned",
-					month = Month.Value,
-                    year = Year.Value,
-                    day = Day.Value,
-					time = int.Parse(duration),
+            var parsedDuration = 0;
+            if (!string.IsNullOrEmpty(duration))
+            {
+                int.TryParse(duration, out parsedDuration);
+            }
 
+            dbService = new Service
+            {
+                CustomerId = LogedIn.GetId(),
+                Name = serviceName ?? string.Empty,
+                Price = parsedPrice,
+                assignedStaff = string.IsNullOrEmpty(SelectedStaff) ? "Not Assigned" : SelectedStaff,
+                month = Month.Value,
+                year = Year.Value,
+                day = Day.Value,
+                time = parsedDuration
+            };
 
-                       };
+            Console.WriteLine("Service scheduled successfully!");
+        }
 
-               // Provide feedback to the user (e.g., redirect or show confirmation)
-               Console.WriteLine("Service scheduled successfully!");
-           }
-		await AddService(dbService);
-       }
+        await AddService(dbService);
+    }
+
     private async Task AddService(Service dbService)
     {
         using var context = DbFactory.CreateDbContext();

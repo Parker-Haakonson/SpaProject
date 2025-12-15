@@ -3,6 +3,185 @@
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 
+<style>
+    /* Keep original class names so other pages (Bookings tab, etc.) still work */
+    .page-title {
+        font-family: "Playfair Display", serif;
+        font-size: 2rem;
+        text-align: center;
+        margin: 1.5rem 0;
+        color: #24314a;
+        letter-spacing: 0.2px;
+    }
+
+    .services-container {
+        max-width: 1100px;
+        margin: 0 auto 2.5rem;
+        padding: 0 1rem;
+        display: grid;
+        gap: 1.25rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .service-card {
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        border: 1px solid rgba(36,49,74,0.06);
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 6px 18px rgba(36,49,74,0.06);
+        transition: transform 160ms ease, box-shadow 160ms ease;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .service-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 30px rgba(36,49,74,0.10);
+    }
+
+    .service-card h2 {
+        margin: 0;
+        color: #172033;
+        font-size: 1.25rem;
+    }
+
+    .description {
+        margin: 0.25rem 0 0.75rem;
+        color: #475569;
+        font-size: 0.95rem;
+    }
+
+    .pricing-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 0.5rem;
+    }
+
+    .pricing-table th,
+    .pricing-table td {
+        padding: 0.6rem 0.5rem;
+        vertical-align: middle;
+    }
+
+    .pricing-table thead th {
+        text-align: left;
+        font-weight: 600;
+        color: #556581;
+        font-size: 0.85rem;
+        padding-bottom: 0.6rem;
+    }
+
+    .pricing-table tbody tr + tr td {
+        border-top: 1px solid rgba(36,49,74,0.06);
+    }
+
+    .price-badge {
+        display: inline-block;
+        background: linear-gradient(90deg, #f8fafc, #eef6ff);
+        color: #0b2a66;
+        padding: 0.25rem 0.5rem;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        border: 1px solid rgba(11,42,102,0.06);
+    }
+
+    .duration-label {
+        color: #334155;
+        font-weight: 600;
+    }
+
+    .option-cell {
+        text-align: right;
+        width: 160px;
+    }
+
+    .btn-primary {
+        min-width: 82px;
+    }
+
+   
+        .pricing-table thead {
+            display: none; /* compact mobile appearance */
+        }
+        .pricing-table tbody td {
+            display: block;
+            width: 100%;
+        }
+        .pricing-table tbody tr {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+    }
+</style>
+
+<h1 class="page-title">Our Massage Services</h1>
+
+<div class="services-container">
+    @foreach (var service in Service)
+    {
+        <div class="service-card">
+            <div>
+                <h2 class="fw-bold">@service.Name</h2>
+                <p class="description fst-italic">@service.Description</p>
+            </div>
+
+            <table class="pricing-table" aria-label="@($"{service.Name} pricing options")">
+                <thead>
+                    <tr>
+                        <th>Duration</th>
+                        <th class="option-cell">Action</th>
+                        <th class="option-cell">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="duration-label">30 Minutes</div>
+                        </td>
+                        <td class="option-cell">
+                            <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 30, service.Price30)" aria-label="@($"Book {service.Name} 30 minutes")">
+                                Book
+                            </button>
+                        </td>
+                        <td class="option-cell">
+                            <span class="price-badge">$@service.Price30</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="duration-label">60 Minutes</div>
+                        </td>
+                        <td class="option-cell">
+                            <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 60, service.Price60)" aria-label="@($"Book {service.Name} 60 minutes")">
+                                Book
+                            </button>
+                        </td>
+                        <td class="option-cell">
+                            <span class="price-badge">$@service.Price60</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="duration-label">90 Minutes</div>
+                        </td>
+                        <td class="option-cell">
+                            <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 90, service.Price90)" aria-label="@($"Book {service.Name} 90 minutes")">
+                                Book
+                            </button>
+                        </td>
+                        <td class="option-cell">
+                            <span class="price-badge">$@service.Price90</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
 @code {
     List<SpaService> Service = new()
     {
@@ -40,10 +219,10 @@
         }
     };
 
-    void Book(string serviceName, int duration)
+    // kept the same navigation logic and method name so bookings tab remains compatible
+    public void btnClick(string serviceName, int duration, int price)
     {
-        // You can later connect this to a booking page or database
-        Console.WriteLine($"Booking requested: {serviceName} - {duration} minutes");
+        NavigationManager.NavigateTo($"/service/selected/{serviceName}/{duration}/{price}");
     }
 
     class SpaService
@@ -53,68 +232,5 @@
         public int Price30 { get; set; }
         public int Price60 { get; set; }
         public int Price90 { get; set; }
-    }
-}
-
-
-<h1 class="page-title">Our Massage Services</h1>
-
-<div class="services-container">
-    @foreach (var service in Service)
-    {
-        <div class="service-card">
-            <h2 class="fw-bold">@service.Name</h2>
-            <p class="description fst-italic">@service.Description</p>
-
-            <table class="pricing-table">
-                <thead>
-                    <tr>
-                        <th>Duration</th>
-                        <th>Price</th>
-
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>30 Minutes  </td>
-                        <td>
-                            <button class="btn btn-primary" @onclick="() => btnClick(service.Name,30,service.Price30)">
-                                Book
-                            </button>
-                        </td>
-                        <td>$@service.Price30</td>
-                    </tr>
-                    <tr>
-                        <td>60 Minutes  </td>
-                        
-                        <td>
-                            <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 60, service.Price60)">
-                                Book
-                            </button>
-                        </td>
-                        <td>$@service.Price60</td>
-                    </tr>
-                    <tr>
-                        <td>90 Minutes &nbsp; &nbsp; &nbsp;</td>
-                        
-                        <td>
-                            <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 90,service.Price90)">
-                                Book
-                            </button>
-                        </td>
-                        <td>$@service.Price90</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    }
-<br/>
-</div>
-
-@code {
-    public void btnClick(string serviceName, int duration, int price)
-    {
-        NavigationManager.NavigateTo($"/service/selected/{serviceName}/{duration}/{price}");
     }
 }

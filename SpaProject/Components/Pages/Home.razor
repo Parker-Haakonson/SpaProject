@@ -6,31 +6,63 @@
 @inject IDbContextFactory<SpaProject.Data.SpaProjectRegisterDB> DbFactory
 @inject NavigationManager Navigation
 
-<h2>Login</h2>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <input class="form-control" type="text" placeholder="Email" @bind="email" />
-        <br />
-        <input class="form-control" type="password" placeholder="Password" @bind="password"/>
-        <br />
-        <button class="btn btn-primary" @onclick="clicked">Login</button>
-        <br />
+<style>
+    /* Center login content in the viewport while preserving existing bootstrap classes */
+    .login-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 120px); /* leaves room for header/sidebar */
+        padding: 1rem;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 420px;
+        background: #fff;
+        border-radius: 8px;
+        padding: 1.25rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+
+        .login-card h2 {
+            margin-bottom: .5rem;
+            text-align: center;
+        }
+
+    .login-footer {
+        text-align: center;
+        margin-top: .75rem;
+    }
+</style>
+
+<div class="login-center">
+    <div class="login-card">
+        <h2>Login</h2>
+        <hr />
+        <div>
+            <input class="form-control mb-3" type="text" placeholder="Email" @bind="email" />
+            <input class="form-control mb-3" type="password" placeholder="Password" @bind="password" />
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary" @onclick="clicked">Login</button>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            @if (incorrect)
+            {
+                <div class="alert alert-danger" role="alert">
+                    Incorrect password or email entered.
+                </div>
+            }
+        </div>
+
+        <div class="login-footer">
+            <a href="registers/create">Not a member? Register here</a>
+        </div>
     </div>
 </div>
-<br />
-<div>
-    @if(incorrect)
-    {
-        <div class="alert alert-danger" role="alert">
-            Incorrect password or email entered.
-        </div>
-    }
-</div>
-<br />
-<a href="registers/create">Not a member? Register here</a>
-
-
 
 @code {
     string message = "";
@@ -44,17 +76,18 @@
 
     public void clicked()
     {
-        foreach(var c in Credentials!)
+        foreach (var c in Credentials!)
         {
-            if(c.Email.Equals(email))
+            if (c.Email.Equals(email))
             {
-                if(c.Password.Equals(password))
+                if (c.Password.Equals(password))
                 {
                     incorrect = false;
                     bool ia = c.isAdmin;
                     int id = c.id;
                     SetLoggedin(ia, id);
                     Navigation.NavigateTo("/");
+                    return;
                 }
                 else
                 {
@@ -87,7 +120,7 @@
         LogedIn.SetEmail(email);
         LogedIn.SetPassword(password);
         LogedIn.SetIsAdmin(ia);
-		LogedIn.SetId(id);
+        LogedIn.SetId(id);
     }
 
 }
