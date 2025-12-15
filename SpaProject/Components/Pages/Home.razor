@@ -7,29 +7,55 @@
 @inject NavigationManager Navigation
 
 <style>
-    /* Center login content in the viewport while preserving existing bootstrap classes */
-    .login-center {
+    /* Full-bleed background using wwwroot/images/spa.jpg with a dark overlay for contrast */
+    .auth-bg {
+        position: relative;
+        background-image: url('/images/spa.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: calc(100vh - 120px); /* leaves room for header/sidebar */
+        padding: 2rem;
+    }
+
+    .auth-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.5); /* adjust opacity if needed */
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    /* Center login content on top of overlay */
+    .login-center {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 980px;
         padding: 1rem;
     }
 
     .login-card {
         width: 100%;
         max-width: 420px;
-        background: #fff;
+        background: rgba(255,255,255,0.98);
         border-radius: 8px;
         padding: 1.25rem;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-        border: 1px solid rgba(0,0,0,0.04);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        border: 1px solid rgba(0,0,0,0.06);
     }
 
-        .login-card h2 {
-            margin-bottom: .5rem;
-            text-align: center;
-        }
+    .login-card h2 {
+        margin-bottom: .5rem;
+        text-align: center;
+    }
 
     .login-footer {
         text-align: center;
@@ -37,29 +63,31 @@
     }
 </style>
 
-<div class="login-center">
-    <div class="login-card">
-        <h2>Login</h2>
-        <hr />
-        <div>
-            <input class="form-control mb-3" type="text" placeholder="Email" @bind="email" />
-            <input class="form-control mb-3" type="password" placeholder="Password" @bind="password" />
-            <div class="d-grid gap-2">
-                <button class="btn btn-primary" @onclick="clicked">Login</button>
-            </div>
-        </div>
-
-        <div class="mt-3">
-            @if (incorrect)
-            {
-                <div class="alert alert-danger" role="alert">
-                    Incorrect password or email entered.
+<div class="auth-bg">
+    <div class="login-center">
+        <div class="login-card">
+            <h2>Login</h2>
+            <hr />
+            <div>
+                <input class="form-control mb-3" type="text" placeholder="Email" @bind="email" />
+                <input class="form-control mb-3" type="password" placeholder="Password" @bind="password" />
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" @onclick="clicked">Login</button>
                 </div>
-            }
-        </div>
+            </div>
 
-        <div class="login-footer">
-            <a href="registers/create">Not a member? Register here</a>
+            <div class="mt-3">
+                @if (incorrect)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        Incorrect password or email entered.
+                    </div>
+                }
+            </div>
+
+            <div class="login-footer">
+                <a href="registers/create">Not a member? Register here</a>
+            </div>
         </div>
     </div>
 </div>

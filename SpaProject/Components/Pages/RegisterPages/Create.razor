@@ -7,29 +7,53 @@
 <PageTitle>Create</PageTitle>
 
 <style>
-    /* Center register content in the viewport — matches login style */
-    .auth-center {
+    /* Same background used on login for consistent look */
+    .auth-bg {
+        position: relative;
+        background-image: url('/images/spa.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: calc(100vh - 120px);
+        padding: 2rem;
+    }
+
+    .auth-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .auth-center {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
         padding: 1rem;
     }
 
     .auth-card {
         width: 100%;
         max-width: 420px;
-        background: #fff;
+        background: rgba(255,255,255,0.98);
         border-radius: 8px;
         padding: 1.25rem;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-        border: 1px solid rgba(0,0,0,0.04);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        border: 1px solid rgba(0,0,0,0.06);
     }
 
-        .auth-card h2 {
-            margin-bottom: .5rem;
-            text-align: center;
-        }
+    .auth-card h2 {
+        margin-bottom: .5rem;
+        text-align: center;
+    }
 
     .auth-footer {
         text-align: center;
@@ -37,32 +61,34 @@
     }
 </style>
 
-<div class="auth-center">
-    <div class="auth-card">
-        <h2>Register</h2>
-        <hr />
-        <EditForm method="post" Model="Register" OnValidSubmit="AddRegister" FormName="create" Enhance>
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="mb-3">
-                <span class="text-danger">*</span>
-                <label for="email" class="form-label">Email:</label>
-                <InputText id="email" @bind-Value="Register.Email" class="form-control" aria-required="true" />
-                <ValidationMessage For="() => Register.Email" class="text-danger" />
-            </div>
-            <div class="mb-3">
-                <span class="text-danger">*</span>
-                <label for="password" class="form-label">Password:</label>
-                <InputText id="password" @bind-Value="Register.Password" class="form-control" aria-required="true" />
-                <ValidationMessage For="() => Register.Password" class="text-danger" />
-            </div>
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Create</button>
-            </div>
-        </EditForm>
+<div class="auth-bg">
+    <div class="auth-center">
+        <div class="auth-card">
+            <h2>Register</h2>
+            <hr />
+            <EditForm method="post" Model="Register" OnValidSubmit="AddRegister" FormName="create" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" role="alert" />
+                <div class="mb-3">
+                    <span class="text-danger">*</span>
+                    <label for="email" class="form-label">Email:</label>
+                    <InputText id="email" @bind-Value="Register.Email" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => Register.Email" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <span class="text-danger">*</span>
+                    <label for="password" class="form-label">Password:</label>
+                    <InputText id="password" @bind-Value="Register.Password" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => Register.Password" class="text-danger" />
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </EditForm>
 
-        <div class="auth-footer mt-3">
-            <a href="/Login">Already a member? Login</a>
+            <div class="auth-footer mt-3">
+                <a href="/Login">Already a member? Login</a>
+            </div>
         </div>
     </div>
 </div>

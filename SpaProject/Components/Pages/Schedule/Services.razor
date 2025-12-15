@@ -4,6 +4,25 @@
 @inject NavigationManager NavigationManager
 
 <style>
+    /* Page background using wwwroot/images/spa.jpg with a dark overlay for legibility */
+    .services-bg {
+        position: relative;
+        background-image: url('/images/spa.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        padding: 3rem 1rem 4rem;
+    }
+
+    .services-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.48); /* adjust opacity for more/less contrast */
+        z-index: 1;
+        pointer-events: none;
+    }
+
     /* Keep original class names so other pages (Bookings tab, etc.) still work */
     .page-title {
         font-family: "Playfair Display", serif;
@@ -14,6 +33,14 @@
         letter-spacing: 0.2px;
     }
 
+    /* when placed on the bg, make the heading readable */
+    .services-bg .page-title {
+        color: #ffffff;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+        position: relative;
+        z-index: 2;
+    }
+
     .services-container {
         max-width: 1100px;
         margin: 0 auto 2.5rem;
@@ -21,6 +48,8 @@
         display: grid;
         gap: 1.25rem;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        position: relative;
+        z-index: 2; /* bring cards above the overlay */
     }
 
     .service-card {
@@ -37,6 +66,22 @@
     .service-card:hover {
         transform: translateY(-6px);
         box-shadow: 0 12px 30px rgba(36,49,74,0.10);
+    }
+
+    /* new: header layout for service card so image + text align nicely */
+    .service-head {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+    }
+
+    .service-image {
+        width: 72px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 8px;
+        flex: 0 0 72px;
+        border: 1px solid rgba(36,49,74,0.06);
     }
 
     .service-card h2 {
@@ -100,86 +145,105 @@
         min-width: 82px;
     }
 
-   
-        .pricing-table thead {
-            display: none; /* compact mobile appearance */
-        }
-        .pricing-table tbody td {
-            display: block;
-            width: 100%;
-        }
-        .pricing-table tbody tr {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 0.5rem;
-            padding: 0.5rem 0;
-        }
+    /* compact mobile appearance */
+    .pricing-table thead {
+        display: none;
+    }
+    .pricing-table tbody td {
+        display: block;
+        width: 100%;
+    }
+    .pricing-table tbody tr {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
     }
 </style>
 
-<h1 class="page-title">Our Massage Services</h1>
+<div class="services-bg">
+    <h1 class="page-title">Our Massage Services</h1>
 
-<div class="services-container">
-    @foreach (var service in Service)
-    {
-        <div class="service-card">
-            <div>
-                <h2 class="fw-bold">@service.Name</h2>
-                <p class="description fst-italic">@service.Description</p>
+    <div class="services-container">
+        @foreach (var service in Service)
+        {
+            <div class="service-card">
+                <div class="service-head">
+                    @if (service.Name == "Hot Stone Massage")
+                    {
+                        <img src="/images/hotStone.jpg" alt="Hot Stone Massage" class="service-image" />
+                    }
+                    else if (service.Name == "Full Body Massage")
+                    {
+                        <img src="/images/fullBody.jpg" alt="Full Body Massage" class="service-image" />
+                    }
+                    else if (service.Name == "Thai Massage")
+                    {
+                        <img src="/images/thaiMassage.jpg" alt="Thai Massage" class="service-image" />
+                    }
+                    else if (service.Name == "Sports Massage")
+                    {
+                        <img src="/images/sport.jpg" alt="Sports Massage" class="service-image" />
+                    }
+                    <div>
+                        <h2 class="fw-bold">@service.Name</h2>
+                        <p class="description fst-italic">@service.Description</p>
+                    </div>
+                </div>
+
+                <table class="pricing-table" aria-label="@($"{service.Name} pricing options")">
+                    <thead>
+                        <tr>
+                            <th>Duration</th>
+                            <th class="option-cell">Action</th>
+                            <th class="option-cell">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="duration-label">30 Minutes</div>
+                            </td>
+                            <td class="option-cell">
+                                <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 30, service.Price30)" aria-label="@($"Book {service.Name} 30 minutes")">
+                                    Book
+                                </button>
+                            </td>
+                            <td class="option-cell">
+                                <span class="price-badge">$@service.Price30</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="duration-label">60 Minutes</div>
+                            </td>
+                            <td class="option-cell">
+                                <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 60, service.Price60)" aria-label="@($"Book {service.Name} 60 minutes")">
+                                    Book
+                                </button>
+                            </td>
+                            <td class="option-cell">
+                                <span class="price-badge">$@service.Price60</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="duration-label">90 Minutes</div>
+                            </td>
+                            <td class="option-cell">
+                                <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 90, service.Price90)" aria-label="@($"Book {service.Name} 90 minutes")">
+                                    Book
+                                </button>
+                            </td>
+                            <td class="option-cell">
+                                <span class="price-badge">$@service.Price90</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <table class="pricing-table" aria-label="@($"{service.Name} pricing options")">
-                <thead>
-                    <tr>
-                        <th>Duration</th>
-                        <th class="option-cell">Action</th>
-                        <th class="option-cell">Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="duration-label">30 Minutes</div>
-                        </td>
-                        <td class="option-cell">
-                            <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 30, service.Price30)" aria-label="@($"Book {service.Name} 30 minutes")">
-                                Book
-                            </button>
-                        </td>
-                        <td class="option-cell">
-                            <span class="price-badge">$@service.Price30</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="duration-label">60 Minutes</div>
-                        </td>
-                        <td class="option-cell">
-                            <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 60, service.Price60)" aria-label="@($"Book {service.Name} 60 minutes")">
-                                Book
-                            </button>
-                        </td>
-                        <td class="option-cell">
-                            <span class="price-badge">$@service.Price60</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="duration-label">90 Minutes</div>
-                        </td>
-                        <td class="option-cell">
-                            <button class="btn btn-primary" @onclick="() => btnClick(service.Name, 90, service.Price90)" aria-label="@($"Book {service.Name} 90 minutes")">
-                                Book
-                            </button>
-                        </td>
-                        <td class="option-cell">
-                            <span class="price-badge">$@service.Price90</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 @code {
