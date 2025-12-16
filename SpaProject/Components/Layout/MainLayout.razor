@@ -1,14 +1,81 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+<!-- Professional top navigation bar -->
+<nav class="professional-topbar">
+    <div class="topbar-container">
+        <a href="/" class="brand-logo">
+            <span class="brand-icon">🌿</span>
+            <span class="brand-text">Fargo Spa & Wellness</span>
+        </a>
+        
+        <div class="nav-links-horizontal">
+            @if (LogedIn.GetIsAdmin())
+            {
+                <NavLink class="top-nav-link admin-link" href="/scheduledbookings" Match="NavLinkMatch.All">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M9.5 7h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5m3 0h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5M2 10.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5zm3.5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5" />
+                    </svg>
+                    <span>Schedule</span>
+                </NavLink>
+            }
+
+            @if (LogedIn.GetIsAdmin() && LogedIn.GetEmail().Equals(ownerEmail))
+            {
+                <NavLink class="top-nav-link admin-link" href="/adminhub" Match="NavLinkMatch.All">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 0c1.07 0 2.041.42 2.759 1.104l.14.14.062.08a.5.5 0 0 1-.71.675l-.076-.066-.216-.205A3 3 0 0 0 5 4v2h6.5A2.5 2.5 0 0 1 14 8.5v5a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 2 13.5v-5a2.5 2.5 0 0 1 2-2.45V4a4 4 0 0 1 4-4" />
+                    </svg>
+                    <span>Admin</span>
+                </NavLink>
+            }
+        </div>
+
+        <div class="user-section">
+            <NavLink class="top-nav-link" href="/service" Match="NavLinkMatch.All">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M10.5 3.5a2.5 2.5 0 0 0-5 0V4h5zm1 0V4H15v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4h3.5v-.5a3.5 3.5 0 1 1 7 0M8.5 8a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V12a.5.5 0 0 0 1 0v-1.5H10a.5.5 0 0 0 0-1H8.5z" />
+                </svg>
+                <span>Services</span>
+            </NavLink>
+
+            @if (LogedIn.GetLogedIn())
+            {
+                <NavLink class="top-nav-link" href="/bookings" Match="NavLinkMatch.All">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-5.146-5.146-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708" />
+                    </svg>
+                    <span>My Bookings</span>
+                </NavLink>
+            }
+
+            @if (!LogedIn.GetLogedIn())
+            {
+                <NavLink class="btn-login" href="/login">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.5 10a.5.5 0 0 0 .832.374l4.5-4a.5.5 0 0 0 0-.748l-4.5-4A.5.5 0 0 0 5.5 4z" />
+                    </svg>
+                    Log In
+                </NavLink>
+                <NavLink class="btn-signup" href="/registers/create">Sign Up</NavLink>
+            }
+            else
+            {
+                <div class="user-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                    </svg>
+                    <span class="user-email">@LogedIn.GetEmail()</span>
+                </div>
+            }
+        </div>
     </div>
+</nav>
 
-    <main>
-   
-
-        <article class="content px-4">
+<!-- Main content area -->
+<div class="modern-layout">
+    <main class="main-content">
+        <article class="content-wrapper">
             @Body
         </article>
     </main>
@@ -19,3 +86,7 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    string ownerEmail = "admin@gmail.com";
+}
