@@ -1,6 +1,4 @@
-﻿@implements IDisposable
-
-<div class="top-row ps-3 navbar navbar-dark">
+﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Fargo Spa and Wellness</a>
     </div>
@@ -24,7 +22,7 @@
                 </svg><span aria-hidden="true"></span> Services
             </NavLink>
         </div>
-        @if (!isLoggedIn)
+        @if (LogedIn.GetLogedIn() == false)
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="Login" Match="NavLinkMatch.All">
@@ -33,15 +31,9 @@
                     </svg><span aria-hidden="true"></span> Log In
                 </NavLink>
             </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/registers/create" Match="NavLinkMatch.All">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-up-square-fill" viewBox="0 0 16 16">
-                        <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm4 9h8a.5.5 0 0 0 .374-.832l-4-4.5a.5.5 0 0 0-.748 0l-4 4.5A.5.5 0 0 0 4 11" />
-                    </svg><span aria-hidden="true"></span> Sign Up
-                </NavLink>
-            </div>
+           
         }
-        @if (isLoggedIn)
+        @if (LogedIn.GetLogedIn() == true)
         {
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="/bookings" Match="NavLinkMatch.All">
@@ -50,16 +42,8 @@
                     </svg><span aria-hidden="true"></span> My Bookings
                 </NavLink>
             </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/logout" Match="NavLinkMatch.All">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
-                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
-                    </svg><span aria-hidden="true"></span> Log Out
-                </NavLink>
-            </div>
         }
-        @if (isAdmin)
+        @if (LogedIn.GetIsAdmin() == true)
         {
             <p style="color: white">------------Employee Pages------------</p>
             <div class="nav-item px-3">
@@ -70,8 +54,9 @@
                 </NavLink>
             </div>
         }
-        @if (isAdmin && userEmail.Equals(ownerEmail))
+        @if (LogedIn.GetIsAdmin() == true && LogedIn.GetEmail().Equals(ownerEmail))
         {
+
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="/adminhub" Match="NavLinkMatch.All">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-unlock2-fill" viewBox="0 0 16 16">
@@ -84,47 +69,5 @@
 </div>
 
 @code {
-    private string ownerEmail = "admin@gmail.com";
-    private bool isLoggedIn = false;
-    private bool isAdmin = false;
-    private string userEmail = string.Empty;
-    private System.Timers.Timer? stateCheckTimer;
-
-    protected override void OnInitialized()
-    {
-        // Set initial login state
-        isLoggedIn = LogedIn.GetLogedIn();
-        isAdmin = LogedIn.GetIsAdmin();
-        userEmail = LogedIn.GetEmail();
-
-        // Create a timer to periodically check login state
-        stateCheckTimer = new System.Timers.Timer(500); // Check every 500ms
-        stateCheckTimer.Elapsed += async (sender, e) => await CheckLoginState();
-        stateCheckTimer.AutoReset = true;
-        stateCheckTimer.Start();
-    }
-
-    private async Task CheckLoginState()
-    {
-        var currentLoginState = LogedIn.GetLogedIn();
-        var currentAdminState = LogedIn.GetIsAdmin();
-        var currentEmail = LogedIn.GetEmail();
-
-        // Check if any state has changed
-        if (currentLoginState != isLoggedIn || 
-            currentAdminState != isAdmin || 
-            currentEmail != userEmail)
-        {
-            isLoggedIn = currentLoginState;
-            isAdmin = currentAdminState;
-            userEmail = currentEmail;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    public void Dispose()
-    {
-        stateCheckTimer?.Stop();
-        stateCheckTimer?.Dispose();
-    }
+    string ownerEmail = "admin@gmail.com";
 }
