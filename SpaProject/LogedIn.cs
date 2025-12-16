@@ -2,6 +2,10 @@
 {
     static class LogedIn
     {
+        // Hardcoded admin credentials
+        public const string AdminEmail = "admin@gmail.com";
+        public const string AdminPassword = "Admin123!";
+        
         static bool IsLogedIn = false;
         static int id;
         static string email;

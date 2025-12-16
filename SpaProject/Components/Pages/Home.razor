@@ -104,6 +104,17 @@
 
     public void clicked()
     {
+        // First check hardcoded admin credentials
+        if (email.Equals(LogedIn.AdminEmail, StringComparison.OrdinalIgnoreCase) && 
+            password.Equals(LogedIn.AdminPassword))
+        {
+            incorrect = false;
+            SetLoggedin(true, -1); // Use -1 as ID for hardcoded admin
+            Navigation.NavigateTo("/");
+            return;
+        }
+
+        // Then check database credentials
         foreach (var c in Credentials!)
         {
             if (c.Email.Equals(email))

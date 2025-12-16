@@ -20,7 +20,7 @@
                 </NavLink>
             }
 
-            @if (LogedIn.GetIsAdmin() && LogedIn.GetEmail().Equals(ownerEmail))
+            @if (LogedIn.GetIsAdmin() && LogedIn.GetEmail().Equals(LogedIn.AdminEmail, StringComparison.OrdinalIgnoreCase))
             {
                 <NavLink class="top-nav-link admin-link" href="/adminhub" Match="NavLinkMatch.All">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
@@ -96,7 +96,6 @@
 </div>
 
 @code {
-    string ownerEmail = "admin@gmail.com";
     private bool isLoggedIn = false;
     private System.Timers.Timer? stateCheckTimer;
 
