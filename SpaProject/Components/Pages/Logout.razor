@@ -1,0 +1,341 @@
+@page "/logout"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<style>
+    /* Full-bleed background using wwwroot/images/spa.jpg with a dark overlay for contrast */
+    .logout-bg {
+        position: relative;
+        background-image: url('/images/spa.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .logout-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.55);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    /* Center logout content on top of overlay */
+    .logout-center {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 600px;
+        padding: 1rem;
+    }
+
+    .logout-card {
+        width: 100%;
+        background: rgba(255,255,255,0.98);
+        border-radius: 12px;
+        padding: 3rem 2.5rem;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        border: 1px solid rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    .logout-icon {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 2rem;
+        background: linear-gradient(135deg, #0b2a66 0%, #1e5a8e 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 16px rgba(11, 42, 102, 0.3);
+    }
+
+    .logout-icon svg {
+        color: white;
+        width: 45px;
+        height: 45px;
+    }
+
+    .logout-card h1 {
+        margin-bottom: 1.5rem;
+        color: #172033;
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        letter-spacing: 0.5px;
+    }
+
+    .logout-message {
+        color: #475569;
+        margin-bottom: 2.5rem;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        letter-spacing: 0.3px;
+    }
+
+    .user-details {
+        background: linear-gradient(135deg, rgba(11, 42, 102, 0.08) 0%, rgba(30, 90, 142, 0.06) 100%);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border: 1px solid rgba(11, 42, 102, 0.12);
+    }
+
+    .user-details p {
+        margin: 0.75rem 0;
+        color: #334155;
+        font-size: 1rem;
+        letter-spacing: 0.4px;
+    }
+
+    .user-details strong {
+        color: #172033;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .admin-badge-display {
+        display: inline-block;
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        color: white;
+        padding: 0.3rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-left: 0.5rem;
+        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1.25rem;
+        justify-content: center;
+        margin-top: 2.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-confirm-logout {
+        padding: 0.875rem 2.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+        cursor: pointer;
+        letter-spacing: 0.4px;
+    }
+
+    .btn-confirm-logout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-cancel {
+        padding: 0.875rem 2.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: rgba(11, 42, 102, 0.08);
+        color: #0b2a66;
+        border: 1px solid rgba(11, 42, 102, 0.2);
+        cursor: pointer;
+        text-decoration: none;
+        letter-spacing: 0.4px;
+    }
+
+    .btn-cancel:hover {
+        background: rgba(11, 42, 102, 0.14);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(11, 42, 102, 0.2);
+    }
+
+    .logout-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 1.25rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+
+    .logout-success svg {
+        width: 28px;
+        height: 28px;
+    }
+
+
+
+        .logout-card h1 {
+            font-size: 1.75rem;
+        }
+
+        .button-group {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-confirm-logout,
+        .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .logout-icon {
+            width: 75px;
+            height: 75px;
+        }
+
+        .logout-icon svg {
+            width: 38px;
+            height: 38px;
+        }
+    }
+</style>
+
+<div class="logout-bg">
+    <div class="logout-center">
+        <div class="logout-card">
+            @if (!isLoggedOut)
+            {
+                <div class="logout-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                    </svg>
+                </div>
+
+                <h1>Confirm Logout</h1>
+                
+                <p class="logout-message">
+                    Are you sure you want to log out from your Fargo Spa & Wellness account?
+                </p>
+
+                <div class="user-details">
+                    <p><strong>Email:</strong> @userEmail</p>
+                    <p><strong>User ID:</strong> @userId</p>
+                    <p>
+                        <strong>Account Type:</strong> 
+                        @if (isAdmin)
+                        {
+                            <span>Administrator <span class="admin-badge-display">ADMIN</span></span>
+                        }
+                        else
+                        {
+                            <span>Standard User</span>
+                        }
+                    </p>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-confirm-logout" @onclick="ConfirmLogout">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                            <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                        </svg>
+                        Yes, Log Out
+                    </button>
+                    <a href="/" class="btn-cancel">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                        Cancel
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="logout-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                    <span><strong>Successfully Logged Out!</strong></span>
+                </div>
+                <p class="logout-message">
+                    Restarting application and redirecting to the home page...
+                </p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string userEmail = string.Empty;
+    private int userId = 0;
+    private bool isAdmin = false;
+    private bool isLoggedOut = false;
+
+    protected override void OnInitialized()
+    {
+        // Check if user is logged in, if not redirect to login
+        if (!LogedIn.GetLogedIn())
+        {
+            NavigationManager.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        // Store current user information before logout
+        userEmail = LogedIn.GetEmail();
+        userId = LogedIn.GetId();
+        isAdmin = LogedIn.GetIsAdmin();
+    }
+
+    private async Task ConfirmLogout()
+    {
+        // Clear all user session data
+        LogedIn.SetLogedIn(false);
+        LogedIn.SetEmail(string.Empty);
+        LogedIn.SetPassword(string.Empty);
+        LogedIn.SetIsAdmin(false);
+        LogedIn.SetId(0);
+
+        // Show success message
+        isLoggedOut = true;
+        StateHasChanged();
+
+        // Wait 1.5 seconds to show success message
+        await Task.Delay(1500);
+
+        // Force a complete page reload to restart the entire application
+        await ReloadApplication();
+    }
+
+    private async Task ReloadApplication()
+    {
+        try
+        {
+            // Use JavaScript to force a full page reload
+            // This will restart the entire Blazor application from scratch
+            await JSRuntime.InvokeVoidAsync("eval", "window.location.href = '/'; window.location.reload(true);");
+        }
+        catch
+        {
+            // Fallback: Use NavigationManager with forceLoad if JS fails
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }
+    }
+}
