@@ -61,6 +61,11 @@
     .staff-select {
         min-width: 220px;
     }
+
+    .required-label::after {
+        content: " *";
+        color: #dc3545;
+    }
 </style>
 
 <div class="selected-card">
@@ -80,31 +85,41 @@
     }
     else
     {
-        <p class="help-text">Choose a date for your appointment (calendar), optionally select a staff member, then click <em>Schedule time!</em>.</p>
+        <p class="help-text">Choose a date for your appointment (calendar), select a staff member, then click <em>Schedule time!</em>.</p>
 
         <div class="form-row">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="date" class="form-label">Appointment Date</label>
-                    <!-- HTML5 calendar via Blazor InputDate -->
-                    <InputDate id="date" @bind-Value="SelectedDate" class="form-control" />
-                    <div class="form-text">Use the calendar to pick month/day/year.</div>
+                    <label for="date" class="form-label required-label">Appointment Date</label>
+                    <!-- HTML5 calendar via Blazor InputDate with min attribute set to today -->
+                    <input type="date" 
+                           id="date" 
+                           class="form-control" 
+                           @bind="SelectedDate" 
+                           @bind:format="yyyy-MM-dd"
+                           min="@MinDate.ToString("yyyy-MM-dd")" />
+                    <div class="form-text">Select a date from today onwards.</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="staff" class="form-label">Preferred Staff</label>
+                    <label for="staff" class="form-label required-label">Assigned Staff</label>
                     <InputSelect id="staff" @bind-Value="SelectedStaff" class="form-control staff-select" aria-label="Select staff">
-                        <option value="">Not Assigned</option>
+                        <option value="">-- Select a staff member --</option>
                         @foreach (var s in StaffNames)
                         {
                             <option value="@s">@s</option>
                         }
                     </InputSelect>
+                    @if (noStaffSelected)
+                    {
+                        <div class="text-danger mt-1">
+                            <small>Please select a staff member.</small>
+                        </div>
+                    }
                 </div>
             </div>
 
             <div class="actions">
-                
                 <button class="btn btn-primary" @onclick="CheckTime">Schedule time!</button>
             </div>
         </div>
@@ -113,7 +128,13 @@
             @if (falseTime)
             {
                 <div class="alert alert-danger" role="alert">
-                    Incorrect date entered — please pick a valid date with year >= 2025.
+                    Invalid date selected — please choose a date from today onwards.
+                </div>
+            }
+            @if (noStaffSelected)
+            {
+                <div class="alert alert-danger" role="alert">
+                    Please select a staff member to proceed with the booking.
                 </div>
             }
             @if (success)
@@ -140,6 +161,7 @@
     public string? price { get; set; }
 
     public bool falseTime = false;
+    public bool noStaffSelected = false;
 
     // kept for compatibility with existing Bookings table
     public int? Month { get; set; }
@@ -149,12 +171,14 @@
     // new DateTime? bound to InputDate (calendar)
     public DateTime? SelectedDate { get; set; }
 
+    // Minimum date (today)
+    private DateTime MinDate => DateTime.Today;
+
     public bool success = false;
 
     // Staff selection — names are taken from the Info page and used directly here
     private List<string> StaffNames { get; set; } = new()
     {
-      
         "Sophia Martinez",
         "Daniel Brooks",
         "Emily Larson",
@@ -171,18 +195,29 @@
 
     public async Task CheckTime()
     {
-        // Use SelectedDate (calendar) for validation; fallback to individual fields if needed
-        if (SelectedDate == null)
+        // Reset validation flags
+        falseTime = false;
+        noStaffSelected = false;
+        success = false;
+
+        // Validate staff selection first
+        if (string.IsNullOrEmpty(SelectedStaff) || SelectedStaff == "")
         {
-            falseTime = true;
-            success = false;
+            noStaffSelected = true;
             return;
         }
 
-        if (SelectedDate.Value.Year < 2025)
+        // Validate that a date was selected
+        if (SelectedDate == null)
         {
             falseTime = true;
-            success = false;
+            return;
+        }
+
+        // Validate the date is not in the past (compare date part only)
+        if (SelectedDate.Value.Date < DateTime.Today)
+        {
+            falseTime = true;
             return;
         }
 
@@ -191,7 +226,6 @@
         Day = SelectedDate.Value.Day;
         Year = SelectedDate.Value.Year;
 
-        falseTime = false;
         await ScheduleTime();
     }
 
@@ -219,7 +253,7 @@
                 CustomerId = LogedIn.GetId(),
                 Name = serviceName ?? string.Empty,
                 Price = parsedPrice,
-                assignedStaff = string.IsNullOrEmpty(SelectedStaff) ? "Not Assigned" : SelectedStaff,
+                assignedStaff = SelectedStaff!, // Now guaranteed to have a value
                 month = Month.Value,
                 year = Year.Value,
                 day = Day.Value,
