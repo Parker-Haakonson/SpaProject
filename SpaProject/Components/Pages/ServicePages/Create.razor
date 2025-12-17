@@ -58,8 +58,13 @@
                 <ValidationMessage For="() => Service.day" class="text-danger" /> 
             </div>        
             <div class="mb-3">
-                <label for="time" class="form-label">time:</label> 
-                <InputNumber id="time" @bind-Value="Service.time" class="form-control" /> 
+                <label for="time" class="form-label">Duration (min):</label> 
+                <InputSelect id="time" @bind-Value="Service.time" class="form-control">
+                    <option value="">Select Duration</option>
+                    <option value="30">30</option>
+                    <option value="60">60</option>
+                    <option value="90">90</option>
+                </InputSelect>
                 <ValidationMessage For="() => Service.time" class="text-danger" /> 
             </div>        
             <button type="submit" class="btn btn-primary">Create</button>

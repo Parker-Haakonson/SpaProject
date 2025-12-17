@@ -22,7 +22,7 @@
     <PropertyColumn Property="service => service.month" />
     <PropertyColumn Property="service => service.year" />
     <PropertyColumn Property="service => service.day" />
-    <PropertyColumn Property="service => service.time" />
+    <PropertyColumn Property="service => service.time" Title="Duration (min)" />
 
     <TemplateColumn Context="service">
         <a href="@($"services/edit?id={service.Id}")">Edit</a> |
