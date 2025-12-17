@@ -77,6 +77,25 @@
                 <ValidationSummary class="text-danger" role="alert" />
                 <div class="mb-3">
                     <span class="text-danger">*</span>
+                    <label for="firstname" class="form-label">First Name:</label>
+                    <InputText id="firstname" @bind-Value="Register.FirstName" class="form-control" aria-required="true" placeholder="John" />
+                    <ValidationMessage For="() => Register.FirstName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <span class="text-danger">*</span>
+                    <label for="lastname" class="form-label">Last Name:</label>
+                    <InputText id="lastname" @bind-Value="Register.LastName" class="form-control" aria-required="true" placeholder="Doe" />
+                    <ValidationMessage For="() => Register.LastName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <span class="text-danger">*</span>
+                    <label for="phonenumber" class="form-label">Phone Number:</label>
+                    <InputText id="phonenumber" @bind-Value="Register.PhoneNumber" class="form-control" type="tel" aria-required="true" placeholder="(123) 456-7890" />
+                    <div class="form-text-info">Enter a valid phone number</div>
+                    <ValidationMessage For="() => Register.PhoneNumber" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <span class="text-danger">*</span>
                     <label for="email" class="form-label">Email:</label>
                     <InputText id="email" @bind-Value="Register.Email" class="form-control" type="email" aria-required="true" placeholder="example@email.com" />
                     <div class="form-text-info">Enter a valid email address</div>
