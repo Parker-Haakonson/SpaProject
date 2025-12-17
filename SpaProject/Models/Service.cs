@@ -28,5 +28,8 @@ namespace SpaProject.Models
         
         [Required]
         public int time { get; set; }
+
+        // Appointment time slot (e.g., "9:00 AM", "2:30 PM")
+        public string? appointmentTime { get; set; }
     }
 }

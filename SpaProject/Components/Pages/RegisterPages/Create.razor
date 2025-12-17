@@ -59,6 +59,12 @@
         text-align: center;
         margin-top: .75rem;
     }
+
+    .form-text-info {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
 </style>
 
 <div class="auth-bg">
@@ -72,17 +78,19 @@
                 <div class="mb-3">
                     <span class="text-danger">*</span>
                     <label for="email" class="form-label">Email:</label>
-                    <InputText id="email" @bind-Value="Register.Email" class="form-control" aria-required="true" />
+                    <InputText id="email" @bind-Value="Register.Email" class="form-control" type="email" aria-required="true" placeholder="example@email.com" />
+                    <div class="form-text-info">Enter a valid email address</div>
                     <ValidationMessage For="() => Register.Email" class="text-danger" />
                 </div>
                 <div class="mb-3">
                     <span class="text-danger">*</span>
                     <label for="password" class="form-label">Password:</label>
-                    <InputText id="password" @bind-Value="Register.Password" class="form-control" aria-required="true" />
+                    <InputText id="password" @bind-Value="Register.Password" class="form-control" type="password" aria-required="true" />
+                    <div class="form-text-info">Password must be at least 6 characters</div>
                     <ValidationMessage For="() => Register.Password" class="text-danger" />
                 </div>
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
                 </div>
             </EditForm>
 
@@ -105,6 +113,6 @@
         using var context = DbFactory.CreateDbContext();
         context.Register.Add(Register);
         await context.SaveChangesAsync();
-        NavigationManager.NavigateTo("/registers");
+        NavigationManager.NavigateTo("/Login");
     }
 }

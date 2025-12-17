@@ -66,6 +66,101 @@
         content: " *";
         color: #dc3545;
     }
+
+    .time-slots-container {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(11, 42, 102, 0.02);
+        border-radius: 8px;
+        border: 1px solid rgba(11, 42, 102, 0.08);
+    }
+
+    .time-slots-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    .time-slot-btn {
+        padding: 0.75rem 0.5rem;
+        border: 2px solid rgba(11, 42, 102, 0.15);
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        color: #475569;
+        text-align: center;
+    }
+
+    .time-slot-btn:hover:not(:disabled) {
+        border-color: #0b2a66;
+        background: rgba(11, 42, 102, 0.06);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(11, 42, 102, 0.15);
+    }
+
+    .time-slot-btn.selected {
+        border-color: #0b2a66;
+        background: linear-gradient(135deg, #0b2a66 0%, #1e5a8e 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(11, 42, 102, 0.25);
+    }
+
+    .time-slot-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #991b1b;
+        text-decoration: line-through;
+    }
+
+    .availability-info {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(239, 246, 255, 0.6);
+        border-radius: 6px;
+        border: 1px solid rgba(11, 42, 102, 0.1);
+    }
+
+    .availability-info p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #475569;
+    }
+
+    .availability-legend {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .legend-box {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        border: 2px solid;
+    }
+
+    .legend-box.available {
+        background: white;
+        border-color: rgba(11, 42, 102, 0.15);
+    }
+
+    .legend-box.booked {
+        background: #fee2e2;
+        border-color: #fca5a5;
+    }
 </style>
 
 <div class="selected-card">
@@ -85,7 +180,7 @@
     }
     else
     {
-        <p class="help-text">Choose a date for your appointment (calendar), select a staff member, then click <em>Schedule time!</em>.</p>
+        <p class="help-text">Choose a date, select a time slot, assign a staff member, then click <em>Schedule Appointment!</em>.</p>
 
         <div class="form-row">
             <div class="row">
@@ -96,14 +191,16 @@
                            id="date" 
                            class="form-control" 
                            @bind="SelectedDate" 
+                           @bind:event="oninput"
                            @bind:format="yyyy-MM-dd"
-                           min="@MinDate.ToString("yyyy-MM-dd")" />
+                           min="@MinDate.ToString("yyyy-MM-dd")"
+                           @onchange="OnDateOrStaffChanged" />
                     <div class="form-text">Select a date from today onwards.</div>
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label for="staff" class="form-label required-label">Assigned Staff</label>
-                    <InputSelect id="staff" @bind-Value="SelectedStaff" class="form-control staff-select" aria-label="Select staff">
+                    <InputSelect id="staff" @bind-Value="SelectedStaff" class="form-control staff-select" aria-label="Select staff" @onchange="OnDateOrStaffChanged">
                         <option value="">-- Select a staff member --</option>
                         @foreach (var s in StaffNames)
                         {
@@ -119,8 +216,50 @@
                 </div>
             </div>
 
+            <!-- Time Slot Selection -->
+            <div class="time-slots-container">
+                <label class="form-label required-label">Select Appointment Time</label>
+                
+                @if (!string.IsNullOrEmpty(SelectedStaff) && SelectedDate.HasValue)
+                {
+                    <div class="availability-info">
+                        <p><strong>Availability for @SelectedStaff on @SelectedDate.Value.ToString("MMMM dd, yyyy")</strong></p>
+                        <div class="availability-legend">
+                            <div class="legend-item">
+                                <div class="legend-box available"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-box booked"></div>
+                                <span>Already Booked</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="time-slots-grid">
+                    @foreach (var timeSlot in AvailableTimeSlots)
+                    {
+                        var isBooked = IsTimeSlotBooked(timeSlot);
+                        <button type="button" 
+                                class="time-slot-btn @(SelectedTimeSlot == timeSlot ? "selected" : "")"
+                                @onclick="() => SelectTimeSlot(timeSlot)"
+                                disabled="@isBooked"
+                                title="@(isBooked ? "This time slot is already booked" : "Click to select this time")">
+                            @timeSlot
+                        </button>
+                    }
+                </div>
+                @if (noTimeSelected)
+                {
+                    <div class="text-danger mt-2">
+                        <small>Please select a time slot.</small>
+                    </div>
+                }
+            </div>
+
             <div class="actions">
-                <button class="btn btn-primary" @onclick="CheckTime">Schedule time!</button>
+                <button class="btn btn-primary" @onclick="CheckTime">Schedule Appointment!</button>
             </div>
         </div>
 
@@ -137,10 +276,22 @@
                     Please select a staff member to proceed with the booking.
                 </div>
             }
+            @if (timeSlotUnavailable)
+            {
+                <div class="alert alert-danger" role="alert">
+                    Sorry, that time slot isn't available.
+                </div>
+            }
+            else if (noTimeSelected)
+            {
+                <div class="alert alert-danger" role="alert">
+                    Please select a time slot to proceed with the booking.
+                </div>
+            }
             @if (success)
             {
                 <div class="alert alert-success" role="alert">
-                    Successfully scheduled appointment! <a href="/bookings" class="alert-link">View your bookings</a>
+                    Successfully scheduled appointment for <strong>@SelectedTimeSlot</strong>! <a href="/bookings" class="alert-link">View your bookings</a>
                 </div>
             }
         </div>
@@ -162,6 +313,8 @@
 
     public bool falseTime = false;
     public bool noStaffSelected = false;
+    public bool noTimeSelected = false;
+    public bool timeSlotUnavailable = false;
 
     // kept for compatibility with existing Bookings table
     public int? Month { get; set; }
@@ -175,6 +328,36 @@
     private DateTime MinDate => DateTime.Today;
 
     public bool success = false;
+
+    // Time slot selection
+    public string? SelectedTimeSlot { get; set; } = string.Empty;
+
+    // Store booked time slots for the selected date and staff
+    private HashSet<string> BookedTimeSlots { get; set; } = new();
+
+    // Available time slots from 9 AM to 6 PM
+    private List<string> AvailableTimeSlots { get; set; } = new()
+    {
+        "9:00 AM",
+        "9:30 AM",
+        "10:00 AM",
+        "10:30 AM",
+        "11:00 AM",
+        "11:30 AM",
+        "12:00 PM",
+        "12:30 PM",
+        "1:00 PM",
+        "1:30 PM",
+        "2:00 PM",
+        "2:30 PM",
+        "3:00 PM",
+        "3:30 PM",
+        "4:00 PM",
+        "4:30 PM",
+        "5:00 PM",
+        "5:30 PM",
+        "6:00 PM"
+    };
 
     // Staff selection — names are taken from the Info page and used directly here
     private List<string> StaffNames { get; set; } = new()
@@ -191,6 +374,68 @@
     {
         Service ??= new();
         SelectedStaff ??= string.Empty;
+        SelectedTimeSlot ??= string.Empty;
+    }
+
+    private async Task OnDateOrStaffChanged()
+    {
+        // Clear the selected time slot when date or staff changes
+        SelectedTimeSlot = string.Empty;
+        noTimeSelected = false;
+        timeSlotUnavailable = false;
+
+        // Load booked time slots for the new selection
+        await LoadBookedTimeSlots();
+    }
+
+    private async Task LoadBookedTimeSlots()
+    {
+        BookedTimeSlots.Clear();
+
+        // Only load if both date and staff are selected
+        if (!SelectedDate.HasValue || string.IsNullOrEmpty(SelectedStaff))
+        {
+            return;
+        }
+
+        try
+        {
+            using var context = DbFactory.CreateDbContext();
+
+            // Query existing bookings for the selected date and staff
+            var bookedSlots = await context.Service
+                .Where(s => s.assignedStaff == SelectedStaff &&
+                           s.year == SelectedDate.Value.Year &&
+                           s.month == SelectedDate.Value.Month &&
+                           s.day == SelectedDate.Value.Day &&
+                           !string.IsNullOrEmpty(s.appointmentTime))
+                .Select(s => s.appointmentTime!)
+                .ToListAsync();
+
+            BookedTimeSlots = new HashSet<string>(bookedSlots);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading booked time slots: {ex.Message}");
+        }
+    }
+
+    private bool IsTimeSlotBooked(string timeSlot)
+    {
+        return BookedTimeSlots.Contains(timeSlot);
+    }
+
+    private void SelectTimeSlot(string timeSlot)
+    {
+        // Don't allow selection of booked time slots
+        if (IsTimeSlotBooked(timeSlot))
+        {
+            return;
+        }
+
+        SelectedTimeSlot = timeSlot;
+        noTimeSelected = false;
+        timeSlotUnavailable = false;
     }
 
     public async Task CheckTime()
@@ -198,12 +443,21 @@
         // Reset validation flags
         falseTime = false;
         noStaffSelected = false;
+        noTimeSelected = false;
+        timeSlotUnavailable = false;
         success = false;
 
         // Validate staff selection first
         if (string.IsNullOrEmpty(SelectedStaff) || SelectedStaff == "")
         {
             noStaffSelected = true;
+            return;
+        }
+
+        // Validate time slot selection
+        if (string.IsNullOrEmpty(SelectedTimeSlot) || SelectedTimeSlot == "")
+        {
+            noTimeSelected = true;
             return;
         }
 
@@ -218,6 +472,16 @@
         if (SelectedDate.Value.Date < DateTime.Today)
         {
             falseTime = true;
+            return;
+        }
+
+        // Double-check the time slot isn't booked (in case of race condition)
+        await LoadBookedTimeSlots();
+        if (IsTimeSlotBooked(SelectedTimeSlot))
+        {
+            timeSlotUnavailable = true;
+            SelectedTimeSlot = string.Empty;
+            StateHasChanged();
             return;
         }
 
@@ -257,10 +521,11 @@
                 month = Month.Value,
                 year = Year.Value,
                 day = Day.Value,
-                time = parsedDuration
+                time = parsedDuration,
+                appointmentTime = SelectedTimeSlot // Save the selected time slot
             };
 
-            Console.WriteLine("Service scheduled successfully!");
+            Console.WriteLine($"Service scheduled successfully for {SelectedTimeSlot}!");
         }
 
         await AddService(dbService);
@@ -272,6 +537,9 @@
         context.Service.Add(dbService);
         await context.SaveChangesAsync();
         success = true;
+
+        // Refresh booked time slots after successful booking
+        await LoadBookedTimeSlots();
     }
 
 }

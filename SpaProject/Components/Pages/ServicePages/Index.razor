@@ -6,9 +6,9 @@
 @implements IAsyncDisposable
 @inject IDbContextFactory<SpaProject.Data.SpaProjectServiceDB> DbFactory
 
-<PageTitle>Index</PageTitle>
+<PageTitle>All Bookings</PageTitle>
 
-<h1>Index</h1>
+<h1>All Bookings</h1>
 
 <p>
     <a href="services/create">Create New</a>
@@ -16,7 +16,7 @@
 
 <QuickGrid Class="table" Items="context.Service">
     <PropertyColumn Property="service => service.CustomerId" />
-    <PropertyColumn Property="service => service.Name" />
+    <PropertyColumn Property="service => service.Name" Title="Service" />
     <PropertyColumn Property="service => service.Price" />
     <PropertyColumn Property="service => service.assignedStaff" />
     <PropertyColumn Property="service => service.month" />

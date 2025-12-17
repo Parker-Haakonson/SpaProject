@@ -83,39 +83,6 @@
         letter-spacing: 0.3px;
     }
 
-    .user-details {
-        background: linear-gradient(135deg, rgba(11, 42, 102, 0.08) 0%, rgba(30, 90, 142, 0.06) 100%);
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin: 2rem 0;
-        border: 1px solid rgba(11, 42, 102, 0.12);
-    }
-
-    .user-details p {
-        margin: 0.75rem 0;
-        color: #334155;
-        font-size: 1rem;
-        letter-spacing: 0.4px;
-    }
-
-    .user-details strong {
-        color: #172033;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
-
-    .admin-badge-display {
-        display: inline-block;
-        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-        color: white;
-        padding: 0.3rem 0.9rem;
-        border-radius: 999px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        margin-left: 0.5rem;
-        box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
-    }
-
     .button-group {
         display: flex;
         gap: 1.25rem;
@@ -187,11 +154,7 @@
         height: 28px;
     }
 
-
-
-        .logout-card h1 {
-            font-size: 1.75rem;
-        }
+  
 
         .button-group {
             flex-direction: column;
@@ -234,22 +197,6 @@
                     Are you sure you want to log out from your Fargo Spa & Wellness account?
                 </p>
 
-                <div class="user-details">
-                    <p><strong>Email:</strong> @userEmail</p>
-                    <p><strong>User ID:</strong> @userId</p>
-                    <p>
-                        <strong>Account Type:</strong> 
-                        @if (isAdmin)
-                        {
-                            <span>Administrator <span class="admin-badge-display">ADMIN</span></span>
-                        }
-                        else
-                        {
-                            <span>Standard User</span>
-                        }
-                    </p>
-                </div>
-
                 <div class="button-group">
                     <button class="btn-confirm-logout" @onclick="ConfirmLogout">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
@@ -284,9 +231,6 @@
 </div>
 
 @code {
-    private string userEmail = string.Empty;
-    private int userId = 0;
-    private bool isAdmin = false;
     private bool isLoggedOut = false;
 
     protected override void OnInitialized()
@@ -297,11 +241,6 @@
             NavigationManager.NavigateTo("/login", forceLoad: true);
             return;
         }
-
-        // Store current user information before logout
-        userEmail = LogedIn.GetEmail();
-        userId = LogedIn.GetId();
-        isAdmin = LogedIn.GetIsAdmin();
     }
 
     private async Task ConfirmLogout()
