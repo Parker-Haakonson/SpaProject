@@ -38,6 +38,7 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         letter-spacing: 0.5px; /* Added letter spacing for better readability */
+        text-align: center; /* Center all text */
     }
 
     /* Slightly enlarge body text for readability */
@@ -47,6 +48,7 @@
         color: rgba(255,255,255,0.95);
         line-height: 2.4; /* Extra spacing for paragraph text */
         word-spacing: 2px; /* Added word spacing */
+        text-align: center; /* Center paragraph text */
     }
 
     /* Headings: clean white with subtle text shadow to improve legibility on busy areas */
@@ -54,13 +56,13 @@
         font-family: 'Playfair Display', serif;
         color: #fff;
         text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-        margin: 0 0 1.5rem 0; /* Increased bottom margin from 0.6rem */
+        margin: 0 auto 1.5rem auto; /* Increased bottom margin from 0.6rem and centered */
         letter-spacing: 1px; /* Added letter spacing to headings */
+        text-align: center; /* Center all headings */
     }
 
     h1 {
         font-size: 2.8rem; /* Slightly increased from 2.6rem */
-        text-align: center;
         margin-bottom: 2.5rem; /* Increased from 1rem */
         letter-spacing: 1.5px; /* Increased letter spacing */
     }
@@ -77,10 +79,15 @@
         margin-bottom: 1.2rem; /* Added bottom margin */
     }
 
+    .staff-list {
+        text-align: center; /* Center staff list */
+    }
+
     .staff-list ul {
         list-style-type: none;
         padding-left: 0;
         margin-bottom: 2.5rem; /* Added margin between staff sections */
+        text-align: center; /* Center list */
     }
 
     .staff-list li {
@@ -89,13 +96,16 @@
         color: rgba(255,255,255,0.92);
         line-height: 2; /* Added line height for list items */
         letter-spacing: 0.4px; /* Added letter spacing */
+        text-align: center; /* Center list items */
     }
 
     /* Business Hours and Certifications lists */
     .info-container > ul {
         margin-bottom: 2.5rem;
-        padding-left: 1.5rem;
+        padding-left: 0; /* Removed left padding for centering */
         line-height: 2.2; /* Increased spacing between list items */
+        list-style-position: inside; /* Move bullets inside for better centering */
+        text-align: center; /* Center lists */
     }
 
     .info-container > ul li {
@@ -104,6 +114,8 @@
         color: rgba(255,255,255,0.92);
         letter-spacing: 0.4px; /* Added letter spacing */
         margin-bottom: 0.8rem; /* Added margin between items */
+        text-align: center; /* Center list items */
+        list-style-type: none; /* Remove bullets for cleaner centered look */
     }
 
     /* Strong tags spacing */
@@ -111,12 +123,7 @@
         letter-spacing: 0.6px; /* Added letter spacing for bold text */
     }
 
- 
-
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 2rem;
-        }
+   
 
         h2 {
             font-size: 1.75rem;

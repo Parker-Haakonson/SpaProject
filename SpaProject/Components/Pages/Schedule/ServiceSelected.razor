@@ -5,6 +5,7 @@
 @using SpaProject.Models
 @rendermode InteractiveServer
 @inject IDbContextFactory<SpaProject.Data.SpaProjectServiceDB> DbFactory
+@inject NavigationManager NavigationManager
 
 <style>
     /* Visual refresh — preserves existing bootstrap class names used elsewhere */
@@ -109,12 +110,13 @@
     }
 
     .time-slot-btn:disabled {
-        opacity: 0.4;
+        opacity: 0.5;
         cursor: not-allowed;
         background: #fee2e2;
         border-color: #fca5a5;
         color: #991b1b;
         text-decoration: line-through;
+        font-weight: 600;
     }
 
     .availability-info {
@@ -129,6 +131,50 @@
         margin: 0;
         font-size: 0.875rem;
         color: #475569;
+    }
+
+    .availability-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .refresh-btn {
+        padding: 0.35rem 0.75rem;
+        background: white;
+        border: 1px solid #0b2a66;
+        border-radius: 6px;
+        color: #0b2a66;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .refresh-btn:hover:not(:disabled) {
+        background: #0b2a66;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(11, 42, 102, 0.2);
+    }
+
+    .refresh-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .refresh-icon {
+        display: inline-block;
+        transition: transform 0.3s ease;
+    }
+
+    .refresh-btn:hover:not(:disabled) .refresh-icon {
+        transform: rotate(180deg);
     }
 
     .availability-legend {
@@ -161,6 +207,23 @@
         background: #fee2e2;
         border-color: #fca5a5;
     }
+
+    .info-tip {
+        background: #f0f9ff;
+        border-left: 4px solid #0ea5e9;
+        padding: 0.75rem 1rem;
+        margin-top: 0.75rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        color: #0c4a6e;
+    }
+
+    .info-tip-icon {
+        display: inline-block;
+        font-weight: bold;
+        margin-right: 0.5rem;
+        color: #0ea5e9;
+    }
 </style>
 
 <div class="selected-card">
@@ -185,22 +248,12 @@
         <div class="form-row">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="date" class="form-label required-label">Appointment Date</label>
-                    <!-- HTML5 calendar via Blazor InputDate with min attribute set to today -->
-                    <input type="date" 
-                           id="date" 
-                           class="form-control" 
-                           @bind="SelectedDate" 
-                           @bind:event="oninput"
-                           @bind:format="yyyy-MM-dd"
-                           min="@MinDate.ToString("yyyy-MM-dd")"
-                           @onchange="OnDateOrStaffChanged" />
-                    <div class="form-text">Select a date from today onwards.</div>
-                </div>
-
-                <div class="col-md-6 mb-3">
                     <label for="staff" class="form-label required-label">Assigned Staff</label>
-                    <InputSelect id="staff" @bind-Value="SelectedStaff" class="form-control staff-select" aria-label="Select staff" @onchange="OnDateOrStaffChanged">
+                    <InputSelect id="staff" 
+                                 @bind-Value="SelectedStaff" 
+                                 class="form-control staff-select" 
+                                 aria-label="Select staff" 
+                                 @onchange="OnStaffChanged">
                         <option value="">-- Select a staff member --</option>
                         @foreach (var s in StaffNames)
                         {
@@ -214,42 +267,98 @@
                         </div>
                     }
                 </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="date" class="form-label required-label">Appointment Date</label>
+                    <input type="date" 
+                           id="date" 
+                           class="form-control" 
+                           @bind="SelectedDate" 
+                           @bind:event="oninput"
+                           @bind:format="yyyy-MM-dd"
+                           min="@MinDate.ToString("yyyy-MM-dd")"
+                           @onchange="OnDateChanged"
+                           @key="dateInputKey" />
+                    <div class="form-text">Select a date from today onwards.</div>
+                </div>
             </div>
 
-            <!-- Time Slot Selection -->
-            <div class="time-slots-container">
+            <!-- Info tip for users -->
+            @if (!string.IsNullOrEmpty(SelectedStaff) && SelectedDate.HasValue)
+            {
+                <div class="info-tip">
+                    <span class="info-tip-icon">💡</span>
+                    <strong>Tip:</strong> If you switch to a different staff member or date, use the <strong>Refresh</strong> button to see their current available time slots.
+                </div>
+            }
+
+            <!-- Time Slot Selection - Use composite key based on staff + date + refreshKey -->
+            <div class="time-slots-container" @key="@GetTimeSlotContainerKey()">
                 <label class="form-label required-label">Select Appointment Time</label>
-                
+
                 @if (!string.IsNullOrEmpty(SelectedStaff) && SelectedDate.HasValue)
                 {
                     <div class="availability-info">
-                        <p><strong>Availability for @SelectedStaff on @SelectedDate.Value.ToString("MMMM dd, yyyy")</strong></p>
+                        <div class="availability-header">
+                            <p><strong>Availability for @SelectedStaff on @SelectedDate.Value.ToString("MMMM dd, yyyy")</strong></p>
+                            <button type="button" 
+                                    class="refresh-btn" 
+                                    @onclick="RefreshTimeSlots"
+                                    disabled="@isLoadingTimeSlots"
+                                    title="Refresh availability">
+                                <span class="refresh-icon">↻</span>
+                                @if (isLoadingTimeSlots)
+                                {
+                                    <span>Refreshing...</span>
+                                }
+                                else
+                                {
+                                    <span>Refresh</span>
+                                }
+                            </button>
+                        </div>
                         <div class="availability-legend">
                             <div class="legend-item">
                                 <div class="legend-box available"></div>
-                                <span>Available</span>
+                                <span>Available (@GetAvailableSlotsCount())</span>
                             </div>
                             <div class="legend-item">
                                 <div class="legend-box booked"></div>
-                                <span>Already Booked</span>
+                                <span>Already Booked (@BookedTimeSlots.Count)</span>
                             </div>
                         </div>
                     </div>
                 }
 
-                <div class="time-slots-grid">
-                    @foreach (var timeSlot in AvailableTimeSlots)
-                    {
-                        var isBooked = IsTimeSlotBooked(timeSlot);
-                        <button type="button" 
-                                class="time-slot-btn @(SelectedTimeSlot == timeSlot ? "selected" : "")"
-                                @onclick="() => SelectTimeSlot(timeSlot)"
-                                disabled="@isBooked"
-                                title="@(isBooked ? "This time slot is already booked" : "Click to select this time")">
-                            @timeSlot
-                        </button>
-                    }
-                </div>
+                @if (isLoadingTimeSlots)
+                {
+                    <div class="time-slots-grid">
+                        <div class="text-center" style="grid-column: 1 / -1; padding: 2rem;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading availability for @SelectedStaff...</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="time-slots-grid" @key="refreshKey">
+                        @foreach (var timeSlot in AvailableTimeSlots)
+                        {
+                            var isBooked = IsTimeSlotBooked(timeSlot);
+                            <button type="button" 
+                                    class="time-slot-btn @(SelectedTimeSlot == timeSlot ? "selected" : "")"
+                                    @onclick="() => SelectTimeSlot(timeSlot)"
+                                    disabled="@isBooked"
+                                    title="@GetTimeSlotTitle(timeSlot, isBooked)"
+                                    @key="@($"{timeSlot}_{refreshKey}")">
+                                @timeSlot
+                            </button>
+                        }
+                    </div>
+                }
+                
                 @if (noTimeSelected)
                 {
                     <div class="text-danger mt-2">
@@ -276,22 +385,22 @@
                     Please select a staff member to proceed with the booking.
                 </div>
             }
-            @if (timeSlotUnavailable)
-            {
-                <div class="alert alert-danger" role="alert">
-                    Sorry, that time slot isn't available.
-                </div>
-            }
-            else if (noTimeSelected)
+            @if (noTimeSelected)
             {
                 <div class="alert alert-danger" role="alert">
                     Please select a time slot to proceed with the booking.
                 </div>
             }
+            @if (timeSlotUnavailable)
+            {
+                <div class="alert alert-danger" role="alert">
+                    Sorry, that time slot is already booked for @SelectedStaff.
+                </div>
+            }
             @if (success)
             {
                 <div class="alert alert-success" role="alert">
-                    Successfully scheduled appointment for <strong>@SelectedTimeSlot</strong>! <a href="/bookings" class="alert-link">View your bookings</a>
+                    Successfully scheduled appointment for <strong>@SelectedTimeSlot</strong> with <strong>@SelectedStaff</strong>! <a href="/bookings" class="alert-link">View your bookings</a>
                 </div>
             }
         </div>
@@ -332,8 +441,20 @@
     // Time slot selection
     public string? SelectedTimeSlot { get; set; } = string.Empty;
 
-    // Store booked time slots for the selected date and staff
+    // Store booked time slots for the selected staff member and date
     private HashSet<string> BookedTimeSlots { get; set; } = new();
+
+    // Cache to store booked slots by staff+date combination
+    private Dictionary<string, HashSet<string>> BookedSlotsCache { get; set; } = new();
+
+    // Dictionary to store selected time slots per staff member
+    private Dictionary<string, string?> StaffTimeSlotSelections { get; set; } = new();
+
+    // Refresh key to force re-render when staff/date changes
+    private int refreshKey = 0;
+    
+    // Date input key to force re-render of date input when staff changes
+    private int dateInputKey = 0;
 
     // Available time slots from 9 AM to 6 PM
     private List<string> AvailableTimeSlots { get; set; } = new()
@@ -370,6 +491,9 @@
 
     public string? SelectedStaff { get; set; } = string.Empty;
 
+    // Add a loading flag
+    private bool isLoadingTimeSlots = false;
+
     protected override void OnInitialized()
     {
         Service ??= new();
@@ -377,17 +501,155 @@
         SelectedTimeSlot ??= string.Empty;
     }
 
-    private async Task OnDateOrStaffChanged()
+    // Generate a unique key for the time slot container based on staff and date
+    private string GetTimeSlotContainerKey()
     {
-        // Clear the selected time slot when date or staff changes
-        SelectedTimeSlot = string.Empty;
-        noTimeSelected = false;
-        timeSlotUnavailable = false;
-
-        // Load booked time slots for the new selection
-        await LoadBookedTimeSlots();
+        if (string.IsNullOrEmpty(SelectedStaff) || !SelectedDate.HasValue)
+        {
+            return $"empty_{refreshKey}";
+        }
+        return $"{SelectedStaff}_{SelectedDate.Value:yyyy-MM-dd}_{refreshKey}";
     }
 
+    // Generate a cache key for storing/retrieving booked slots
+    private string GetCacheKey()
+    {
+        if (string.IsNullOrEmpty(SelectedStaff) || !SelectedDate.HasValue)
+        {
+            return string.Empty;
+        }
+        return $"{SelectedStaff}_{SelectedDate.Value:yyyy-MM-dd}";
+    }
+
+    // Handler for manual refresh button
+    private async Task RefreshTimeSlots()
+    {
+        if (string.IsNullOrEmpty(SelectedStaff) || !SelectedDate.HasValue)
+        {
+            return;
+        }
+
+        Console.WriteLine($"[MANUAL REFRESH] Refreshing time slots for {SelectedStaff} on {SelectedDate.Value:yyyy-MM-dd}");
+
+        // Set loading state
+        isLoadingTimeSlots = true;
+        await InvokeAsync(StateHasChanged);
+
+        // Clear the cache for this staff+date combination to force fresh data
+        var cacheKey = GetCacheKey();
+        if (BookedSlotsCache.ContainsKey(cacheKey))
+        {
+            BookedSlotsCache.Remove(cacheKey);
+            Console.WriteLine($"[CACHE] Cleared cache for {cacheKey}");
+        }
+
+        // Reload booked time slots from database
+        await LoadBookedTimeSlots();
+
+        // Clear loading state
+        isLoadingTimeSlots = false;
+
+        // Increment refresh key to force UI update
+        refreshKey++;
+
+        Console.WriteLine($"[MANUAL REFRESH] Loaded {BookedTimeSlots.Count} booked slots, refreshKey: {refreshKey}");
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // Handler for date changes - refreshes booked time slots
+    private async Task OnDateChanged()
+    {
+        Console.WriteLine($"[DATE CHANGED] New date: {SelectedDate?.ToString("yyyy-MM-dd") ?? "null"}");
+        
+        // Clear selected time slot when date changes
+        SelectedTimeSlot = string.Empty;
+        
+        // Clear saved selection for current staff when date changes
+        if (!string.IsNullOrEmpty(SelectedStaff))
+        {
+            StaffTimeSlotSelections[SelectedStaff] = string.Empty;
+        }
+        
+        noTimeSelected = false;
+        timeSlotUnavailable = false;
+        
+        // Reload booked time slots for the new date (uses cache if available)
+        await LoadBookedTimeSlots();
+        
+        // Increment refresh key to force UI update
+        refreshKey++;
+        
+        Console.WriteLine($"[DATE CHANGED] Loaded {BookedTimeSlots.Count} booked slots, refreshKey: {refreshKey}");
+        
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    // Handler for staff selection changes - preserves date and reloads booked slots
+    private async Task OnStaffChanged()
+    {
+        Console.WriteLine($"[STAFF CHANGED] New staff: {SelectedStaff}");
+        
+        // Set loading state
+        isLoadingTimeSlots = true;
+        
+        // Clear the selected time slot when staff changes
+        SelectedTimeSlot = string.Empty;
+        
+        // Reset validation flags
+        noTimeSelected = false;
+        timeSlotUnavailable = false;
+        falseTime = false;
+        
+        // IMPORTANT: Clear booked time slots to show all as available during load
+        BookedTimeSlots.Clear();
+        
+        // Increment refresh key and force UI update
+        refreshKey++;
+        await InvokeAsync(StateHasChanged);
+        
+        // IMPORTANT: If a date is already selected, reload booked slots for the new staff member
+        if (SelectedDate.HasValue && !string.IsNullOrEmpty(SelectedStaff))
+        {
+            Console.WriteLine($"[STAFF CHANGED] Date is selected ({SelectedDate.Value:yyyy-MM-dd}), reloading booked slots for {SelectedStaff}");
+            
+            // Clear the cache for this staff+date combination to force fresh data
+            var cacheKey = GetCacheKey();
+            if (BookedSlotsCache.ContainsKey(cacheKey))
+            {
+                BookedSlotsCache.Remove(cacheKey);
+                Console.WriteLine($"[CACHE] Cleared cache for {cacheKey}");
+            }
+            
+            // Load booked time slots for the new staff member with current date
+            await LoadBookedTimeSlots();
+            
+            Console.WriteLine($"[STAFF CHANGED] Loaded {BookedTimeSlots.Count} booked slots for {SelectedStaff}");
+        }
+        else
+        {
+            // If no date is selected, clear date
+            SelectedDate = null;
+            
+            // Increment date input key to force visual clear
+            dateInputKey++;
+            
+            Console.WriteLine($"[STAFF CHANGED] No date selected, cleared booked slots");
+        }
+        
+        // Clear loading state
+        isLoadingTimeSlots = false;
+        
+        // Increment refresh key again to force final UI update
+        refreshKey++;
+        
+        Console.WriteLine($"[STAFF CHANGED] TimeSlot cleared, BookedSlots count: {BookedTimeSlots.Count}, refreshKey: {refreshKey}");
+        
+        // Force final UI refresh - the @key attribute will cause re-render
+        await InvokeAsync(StateHasChanged);
+    }
+        
+    // Load booked time slots for the selected staff and date (with caching)
     private async Task LoadBookedTimeSlots()
     {
         BookedTimeSlots.Clear();
@@ -395,14 +657,26 @@
         // Only load if both date and staff are selected
         if (!SelectedDate.HasValue || string.IsNullOrEmpty(SelectedStaff))
         {
+            Console.WriteLine($"[LOAD SLOTS] Skipped - Date: {SelectedDate?.ToString("yyyy-MM-dd") ?? "null"}, Staff: {SelectedStaff ?? "null"}");
             return;
         }
 
+        var cacheKey = GetCacheKey();
+
+        // Always check cache first for performance
+        if (BookedSlotsCache.ContainsKey(cacheKey))
+        {
+            BookedTimeSlots = new HashSet<string>(BookedSlotsCache[cacheKey]);
+            Console.WriteLine($"[CACHE HIT] Loaded {BookedTimeSlots.Count} booked slots for {SelectedStaff} on {SelectedDate.Value:yyyy-MM-dd}");
+            return;
+        }
+
+        // If not cached, fetch from database
         try
         {
             using var context = DbFactory.CreateDbContext();
 
-            // Query existing bookings for the selected date and staff
+            // Query all bookings for the selected staff member on the selected date
             var bookedSlots = await context.Service
                 .Where(s => s.assignedStaff == SelectedStaff &&
                            s.year == SelectedDate.Value.Year &&
@@ -413,16 +687,39 @@
                 .ToListAsync();
 
             BookedTimeSlots = new HashSet<string>(bookedSlots);
+            
+            // Cache the result for future use
+            BookedSlotsCache[cacheKey] = new HashSet<string>(bookedSlots);
+            
+            Console.WriteLine($"[DATABASE] Loaded {BookedTimeSlots.Count} booked slots for {SelectedStaff} on {SelectedDate.Value:yyyy-MM-dd}: {string.Join(", ", bookedSlots)}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading booked time slots: {ex.Message}");
+            Console.WriteLine($"[ERROR] Error loading booked time slots: {ex.Message}");
         }
     }
 
+    // Check if a time slot is already booked
     private bool IsTimeSlotBooked(string timeSlot)
     {
-        return BookedTimeSlots.Contains(timeSlot);
+        var isBooked = BookedTimeSlots.Contains(timeSlot);
+        return isBooked;
+    }
+
+    // Get the count of available time slots
+    private int GetAvailableSlotsCount()
+    {
+        return AvailableTimeSlots.Count - BookedTimeSlots.Count;
+    }
+
+    // Get the title/tooltip for a time slot button
+    private string GetTimeSlotTitle(string timeSlot, bool isBooked)
+    {
+        if (isBooked)
+        {
+            return $"{timeSlot} - Already booked for {SelectedStaff}";
+        }
+        return $"Click to select {timeSlot}";
     }
 
     private void SelectTimeSlot(string timeSlot)
@@ -430,10 +727,19 @@
         // Don't allow selection of booked time slots
         if (IsTimeSlotBooked(timeSlot))
         {
+            Console.WriteLine($"[BLOCKED] Attempted to select booked slot: {timeSlot}");
             return;
         }
 
         SelectedTimeSlot = timeSlot;
+        
+        // Save the time slot selection for the current staff member
+        if (!string.IsNullOrEmpty(SelectedStaff))
+        {
+            StaffTimeSlotSelections[SelectedStaff] = timeSlot;
+            Console.WriteLine($"[SELECTED] {timeSlot} for {SelectedStaff}");
+        }
+        
         noTimeSelected = false;
         timeSlotUnavailable = false;
     }
@@ -448,14 +754,14 @@
         success = false;
 
         // Validate staff selection first
-        if (string.IsNullOrEmpty(SelectedStaff) || SelectedStaff == "")
+        if (string.IsNullOrEmpty(SelectedStaff))
         {
             noStaffSelected = true;
             return;
         }
 
         // Validate time slot selection
-        if (string.IsNullOrEmpty(SelectedTimeSlot) || SelectedTimeSlot == "")
+        if (string.IsNullOrEmpty(SelectedTimeSlot))
         {
             noTimeSelected = true;
             return;
@@ -475,13 +781,28 @@
             return;
         }
 
-        // Double-check the time slot isn't booked (in case of race condition)
+        // Double-check the time slot isn't booked (race condition protection)
+        // Clear cache to ensure we get fresh data
+        var cacheKey = GetCacheKey();
+        if (BookedSlotsCache.ContainsKey(cacheKey))
+        {
+            BookedSlotsCache.Remove(cacheKey);
+        }
+        
         await LoadBookedTimeSlots();
+        
         if (IsTimeSlotBooked(SelectedTimeSlot))
         {
             timeSlotUnavailable = true;
             SelectedTimeSlot = string.Empty;
-            StateHasChanged();
+            
+            // Clear the saved selection for this staff member since it's no longer valid
+            if (!string.IsNullOrEmpty(SelectedStaff))
+            {
+                StaffTimeSlotSelections[SelectedStaff] = string.Empty;
+            }
+            
+            Console.WriteLine($"[BOOKING FAILED] Time slot {SelectedTimeSlot} is already booked");
             return;
         }
 
@@ -517,15 +838,13 @@
                 CustomerId = LogedIn.GetId(),
                 Name = serviceName ?? string.Empty,
                 Price = parsedPrice,
-                assignedStaff = SelectedStaff!, // Now guaranteed to have a value
+                assignedStaff = SelectedStaff!,
                 month = Month.Value,
                 year = Year.Value,
                 day = Day.Value,
                 time = parsedDuration,
-                appointmentTime = SelectedTimeSlot // Save the selected time slot
+                appointmentTime = SelectedTimeSlot
             };
-
-            Console.WriteLine($"Service scheduled successfully for {SelectedTimeSlot}!");
         }
 
         await AddService(dbService);
@@ -538,8 +857,28 @@
         await context.SaveChangesAsync();
         success = true;
 
-        // Refresh booked time slots after successful booking
-        await LoadBookedTimeSlots();
-    }
+        Console.WriteLine($"[BOOKING SUCCESS] {SelectedTimeSlot} booked for {SelectedStaff} on {SelectedDate.Value:yyyy-MM-dd}");
 
+        // Clear the saved selection for the booked staff member
+        if (!string.IsNullOrEmpty(SelectedStaff))
+        {
+            StaffTimeSlotSelections.Remove(SelectedStaff);
+        }
+
+        // Invalidate cache for the booked staff member + date
+        var cacheKey = GetCacheKey();
+        if (BookedSlotsCache.ContainsKey(cacheKey))
+        {
+            BookedSlotsCache.Remove(cacheKey);
+            Console.WriteLine($"[CACHE] Invalidated cache for {cacheKey}");
+        }
+
+        // Reload booked time slots after successful booking
+        await LoadBookedTimeSlots();
+        
+        // Increment refresh key to force UI update
+        refreshKey++;
+        
+        await InvokeAsync(StateHasChanged);
+    }
 }

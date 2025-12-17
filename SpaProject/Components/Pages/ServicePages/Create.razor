@@ -2,95 +2,317 @@
 @using Microsoft.EntityFrameworkCore
 @using SpaProject.Models
 @inject IDbContextFactory<SpaProject.Data.SpaProjectServiceDB> DbFactory
-@inject IDbContextFactory<SpaProject.Data.SpaProjectRegisterDB> RegisterDbFactory
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
-<PageTitle>Create</PageTitle>
+<style>
+    .create-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: linear-gradient(180deg, #ffffff, #fbfdff);
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(23, 32, 51, 0.08);
+    }
 
-<h1>Create</h1>
+    .create-header {
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+    }
 
-<h2>Service</h2>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <EditForm method="post" Model="Service" OnValidSubmit="AddService" FormName="create" Enhance>
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert"/>
-            <div class="mb-3">
-                <label for="customerid" class="form-label">CustomerId:</label> 
-                <InputNumber id="customerid" @bind-Value="Service.CustomerId" class="form-control" /> 
-                <ValidationMessage For="() => Service.CustomerId" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="name" class="form-label">Name:</label> 
-                <InputText id="name" @bind-Value="Service.Name" class="form-control" /> 
-                <ValidationMessage For="() => Service.Name" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="price" class="form-label">Price:</label> 
-                <InputNumber id="price" @bind-Value="Service.Price" class="form-control" /> 
-                <ValidationMessage For="() => Service.Price" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="assignedstaff" class="form-label">assignedStaff:</label> 
-                <InputSelect id="assignedstaff" @bind-Value="Service.assignedStaff" class="form-control" > 
-                <option value="">Select Staff</option>
-                @foreach (var email in AdminEmails)
-                {
-                    <option value= "@email">@email</option>
-                }
-                </InputSelect>
-                <ValidationMessage For="() => Service.assignedStaff" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="month" class="form-label">month:</label> 
-                <InputNumber id="month" @bind-Value="Service.month" class="form-control" /> 
-                <ValidationMessage For="() => Service.month" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="year" class="form-label">year:</label> 
-                <InputNumber id="year" @bind-Value="Service.year" class="form-control" /> 
-                <ValidationMessage For="() => Service.year" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="day" class="form-label">day:</label> 
-                <InputNumber id="day" @bind-Value="Service.day" class="form-control" /> 
-                <ValidationMessage For="() => Service.day" class="text-danger" /> 
-            </div>        
-            <div class="mb-3">
-                <label for="time" class="form-label">Duration (min):</label> 
-                <InputSelect id="time" @bind-Value="Service.time" class="form-control">
-                    <option value="">Select Duration</option>
-                    <option value="30">30</option>
-                    <option value="60">60</option>
-                    <option value="90">90</option>
-                </InputSelect>
-                <ValidationMessage For="() => Service.time" class="text-danger" /> 
-            </div>        
-            <button type="submit" class="btn btn-primary">Create</button>
-        </EditForm>
+    .create-title {
+        color: #172033;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .create-subtitle {
+        color: #475569;
+        font-size: 0.95rem;
+        margin-top: 0.5rem;
+    }
+
+    .form-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title svg {
+        color: #667eea;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-create {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+        border: 2px solid #e5e7eb;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+        text-decoration: none;
+    }
+
+    .info-box {
+        background: #f0f9ff;
+        border-left: 4px solid #0ea5e9;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-box p {
+        margin: 0;
+        color: #0c4a6e;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="create-container">
+    <div class="create-header">
+        <h1 class="create-title">Create New Booking</h1>
+        <p class="create-subtitle">Add a new service appointment to the system</p>
     </div>
-</div>
 
-<div>
-    <a href="/services">Back to List</a>
+    <EditForm method="post" Model="Service" OnValidSubmit="AddService" FormName="create" Enhance>
+        <DataAnnotationsValidator />
+        <ValidationSummary class="alert alert-danger" role="alert"/>
+
+        <div class="info-box">
+            <p><strong>ℹ️ Tip:</strong> Use the dropdown menus to quickly select booking options. All fields are required.</p>
+        </div>
+
+        <!-- Customer Information Section -->
+        <div class="form-section">
+            <div class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                </svg>
+                Customer Information
+            </div>
+            <div class="mb-3">
+                <label for="customerid" class="form-label">Customer ID: *</label>
+                <InputNumber id="customerid" @bind-Value="Service.CustomerId" class="form-control" />
+                <ValidationMessage For="() => Service.CustomerId" class="text-danger" />
+                <small class="text-muted">Enter the customer's unique ID number</small>
+            </div>
+        </div>
+
+        <!-- Service Details Section -->
+        <div class="form-section">
+            <div class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M10.5 3.5a2.5 2.5 0 0 0-5 0V4h5zm1 0V4H15v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4h3.5v-.5a3.5 3.5 0 1 1 7 0M8.5 8a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V12a.5.5 0 0 0 1 0v-1.5H10a.5.5 0 0 0 0-1H8.5z" />
+                </svg>
+                Service Details
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label">Service Name: *</label>
+                    <InputSelect id="name" @bind-Value="Service.Name" class="form-select">
+                        <option value="">-- Select Service --</option>
+                        <option value="Full Body Massage">Full Body Massage</option>
+                        <option value="Hot Stone Massage">Hot Stone Massage</option>
+                        <option value="Thai Massage">Thai Massage</option>
+                        <option value="Sports Massage">Sports Massage</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => Service.Name" class="text-danger" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="time" class="form-label">Duration: *</label>
+                    <InputSelect id="time" @bind-Value="Service.time" class="form-select">
+                        <option value="">-- Select Duration --</option>
+                        <option value="30">30 Minutes</option>
+                        <option value="60">60 Minutes</option>
+                        <option value="90">90 Minutes</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => Service.time" class="text-danger" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Price: *</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <InputNumber id="price" @bind-Value="Service.Price" class="form-control" />
+                </div>
+                <ValidationMessage For="() => Service.Price" class="text-danger" />
+            </div>
+        </div>
+
+        <!-- Staff Assignment Section -->
+        <div class="form-section">
+            <div class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                </svg>
+                Staff Assignment
+            </div>
+            <div class="mb-3">
+                <label for="assignedstaff" class="form-label">Assigned Staff: *</label>
+                <InputSelect id="assignedstaff" @bind-Value="Service.assignedStaff" class="form-select">
+                    <option value="">-- Select Staff Member --</option>
+                    @foreach (var staffName in StaffNames)
+                    {
+                        <option value="@staffName">@staffName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => Service.assignedStaff" class="text-danger" />
+            </div>
+        </div>
+
+        <!-- Appointment Date Section -->
+        <div class="form-section">
+            <div class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-5.146-5.146-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708"/>
+                </svg>
+                Appointment Date
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="month" class="form-label">Month: *</label>
+                    <InputSelect id="month" @bind-Value="Service.month" class="form-select">
+                        <option value="">-- Month --</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => Service.month" class="text-danger" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="day" class="form-label">Day: *</label>
+                    <InputSelect id="day" @bind-Value="Service.day" class="form-select">
+                        <option value="">-- Day --</option>
+                        @for (int i = 1; i <= 31; i++)
+                        {
+                            <option value="@i">@i</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Service.day" class="text-danger" />
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label for="year" class="form-label">Year: *</label>
+                    <InputSelect id="year" @bind-Value="Service.year" class="form-select">
+                        <option value="">-- Year --</option>
+                        @for (int year = DateTime.Now.Year; year <= DateTime.Now.Year + 2; year++)
+                        {
+                            <option value="@year">@year</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => Service.year" class="text-danger" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="/services" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-create">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="display: inline-block; margin-right: 0.5rem;">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                </svg>
+                Create Booking
+            </button>
+        </div>
+    </EditForm>
 </div>
 
 @code {
     [SupplyParameterFromForm]
     private Service Service { get; set; } = default!;
-    private List<string> AdminEmails = new();
+
+    // Staff names matching those in ServiceSelected page
+    private List<string> StaffNames = new()
+    {
+        "Sophia Martinez",
+        "Daniel Brooks",
+        "Emily Larson",
+        "Harper Nguyen"
+    };
 
     protected override void OnInitialized() 
     { 
         Service ??= new();
-
-        using var context = RegisterDbFactory.CreateDbContext();
-
-        AdminEmails = context.Register
-                        .Where(r => r.IsAdmin)
-                        .Select(r=> r.Email!)
-                        .ToList();
     }
 
     // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
