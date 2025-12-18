@@ -130,6 +130,13 @@
     private async Task AddRegister()
     {
         using var context = DbFactory.CreateDbContext();
+        
+        // Auto-generate a unique CustomerId
+        var maxCustomerId = await context.Register.AnyAsync() 
+            ? await context.Register.MaxAsync(r => r.CustomerId) 
+            : 0;
+        Register.CustomerId = maxCustomerId + 1;
+        
         context.Register.Add(Register);
         await context.SaveChangesAsync();
         NavigationManager.NavigateTo("/Login");

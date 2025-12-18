@@ -12,9 +12,13 @@
 <h1>Account Information</h1>
 
 <QuickGrid Class="table" Items="context.Register">
+    <PropertyColumn Property="register => register.CustomerId" Title="Customer ID" />
+    <PropertyColumn Property="register => register.FirstName" Title="First Name" />
+    <PropertyColumn Property="register => register.LastName" Title="Last Name" />
+    <PropertyColumn Property="register => register.PhoneNumber" Title="Phone Number" />
     <PropertyColumn Property="register => register.Email" />
     <PropertyColumn Property="register => register.Password" />
-    <PropertyColumn Property="register => register.IsAdmin" />
+    <PropertyColumn Property="register => register.IsAdmin" Title="Admin" />
 
     <TemplateColumn Context="register">
         <a href="@($"registers/edit?id={register.Id}")">Edit</a> |
