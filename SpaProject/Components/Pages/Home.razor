@@ -98,7 +98,7 @@
     string email = "";
     string password = "";
 
-    private record Credential(string Email, string Password, bool isAdmin, int id);
+    private record Credential(string Email, string Password, bool isAdmin, int id, string FirstName);
 
     private List<Credential>? Credentials;
 
@@ -109,7 +109,7 @@
             password.Equals(LogedIn.AdminPassword))
         {
             incorrect = false;
-            SetLoggedin(true, -1); // Use -1 as ID for hardcoded admin
+            SetLoggedin(true, -1, "Admin"); // Use -1 as ID for hardcoded admin
             Navigation.NavigateTo("/");
             return;
         }
@@ -124,7 +124,8 @@
                     incorrect = false;
                     bool ia = c.isAdmin;
                     int id = c.id;
-                    SetLoggedin(ia, id);
+                    string firstName = c.FirstName;
+                    SetLoggedin(ia, id, firstName);
                     Navigation.NavigateTo("/");
                     return;
                 }
@@ -150,16 +151,17 @@
         // This assumes there is an entity with `Email` and `Password` properties.
         Credentials = await ctx.Set<Register>()
                                .AsNoTracking()
-                               .Select(r => new Credential(r.Email!, r.Password!, r.IsAdmin!, r.Id))
+                               .Select(r => new Credential(r.Email!, r.Password!, r.IsAdmin!, r.Id, r.FirstName ?? "User"))
                                .ToListAsync();
     }
-    public void SetLoggedin(bool ia, int id)
+    public void SetLoggedin(bool ia, int id, string firstName)
     {
         LogedIn.SetLogedIn(true);
         LogedIn.SetEmail(email);
         LogedIn.SetPassword(password);
         LogedIn.SetIsAdmin(ia);
         LogedIn.SetId(id);
+        LogedIn.SetFirstName(firstName);
     }
 
 }

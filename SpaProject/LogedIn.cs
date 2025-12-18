@@ -11,6 +11,7 @@
         static string email;
         static string password;
         static bool isAdmin = false;
+        static string firstName = string.Empty;
         
         static public bool GetLogedIn()
         {
@@ -60,6 +61,16 @@
         static public void SetId(int Id)
         {
             id = Id;
+        }
+        
+        static public string GetFirstName()
+        {
+            return firstName;
+        }
+        
+        static public void SetFirstName(string FirstName)
+        {
+            firstName = FirstName;
         }
     }
 }
